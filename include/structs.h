@@ -1,4 +1,5 @@
-/* double-linked list */
+
+/* Double linked list */
 
 typedef struct dlist_node {
 	void * data;
@@ -13,7 +14,7 @@ typedef struct dlist {
 	int size;
 } dlist;
 
-/* file-system tree */
+/* File-system Tree */
 
 typedef struct fslist_node {
 	fstree_node * child;
@@ -35,3 +36,10 @@ typedef struct fstree_node {
 typedef struct fstree {
 	fstree_node * root;
 } fstree;
+
+/* IPC Headers */
+
+typedef struct instruction_header {
+	int instruction_size;
+	int client_id;
+} instruction_header;

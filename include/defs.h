@@ -32,3 +32,6 @@ typedef fslist_node *		fslist_node_t;
 #define NO_DIRECTORY		-2
 #define NO_MEMORY			-3
 
+/* Server */
+
+#define SERVER_CHANNEL "/tmp/server"
