@@ -17,6 +17,7 @@ int main(int argc, int ** argv) {
 	instruction_header client_header;
 	
 	if (argc < 2) {
+		printf("Puto cagon, pone mas argumentos\n");
 		/* fatal("Too few arguments") */
 		return 0;
 	}

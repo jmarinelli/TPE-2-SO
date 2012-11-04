@@ -1,4 +1,3 @@
-
 /* Double linked list */
 
 typedef struct dlist_node {
@@ -17,24 +16,24 @@ typedef struct dlist {
 /* File-system Tree */
 
 typedef struct fslist_node {
-	fstree_node * child;
-	fslist_node * next;
-}
+	struct fstree_node * child;
+	struct fslist_node * next;
+} fslist_node;
 
 typedef struct fslist {
-	fslist_node * first;
+	struct fslist_node * first;
 	size_t size;
 } fslist;
 
 typedef struct fstree_node {
 	fslist * children;
-	bool is_directory;
+	unsigned is_directory;
 	dlist * versions;		// sin uso APARENTE por ahora
 	char * filename;
 } fstree_node;
 
 typedef struct fstree {
-	fstree_node * root;
+	struct fstree_node * root;
 } fstree;
 
 /* IPC Headers */

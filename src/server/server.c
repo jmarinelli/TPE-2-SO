@@ -44,7 +44,7 @@ int main() {
 			while(read(comChannel, instruction_string, client_header.instruction_size) == 0)
 				sleep(1);
 				
-			printf("Received instruction from client: %d, program name: %s\n",
+			printf("Received instruction from client: %d, instruction: %s\n",
 				client_header.client_id, instruction_string);
 				
 			parse_string(instruction_string);
