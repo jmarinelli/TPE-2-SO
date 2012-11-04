@@ -24,6 +24,7 @@ int main() {
 	signal(SIGINT, (__sighandler_t)server_close);
 	
 	parser_init();
+	filesystem_init();
 	
 	if ( mkfifo(SERVER_CHANNEL, 0666) == -1 ) {
 		if (errno != EEXIST) {
