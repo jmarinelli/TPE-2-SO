@@ -42,3 +42,5 @@ typedef struct instruction_header {
 	int instruction_size;
 	int client_id;
 } instruction_header;
+
+typedef instruction_header * instruction_header_t;

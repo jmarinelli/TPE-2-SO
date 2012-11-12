@@ -32,6 +32,7 @@ typedef fslist_node *		fslist_node_t;
 #define NO_DIRECTORY		-2
 #define NO_MEMORY			-3
 
-/* Server */
+/* Paths */
 
 #define SERVER_CHANNEL "/tmp/server"
+#define CVS_TREE_PATH "/tmp/cvs/config/tree"

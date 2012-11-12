@@ -17,20 +17,21 @@ int main(int argc, int ** argv) {
 	instruction_header client_header;
 	
 	if (argc < 2) {
-		printf("Puto cagon, pone mas argumentos\n");
+		printf("Too few arguments\n");
 		/* fatal("Too few arguments") */
 		return 0;
 	}
 	
-	if ((comChannel = open(SERVER_CHANNEL, O_WRONLY)) < 0)
+	if ((comChannel = open(SERVER_CHANNEL, O_WRONLY)) < 0) {}
 		// fatal("Server channel closed");
-	
+		
 	instruction = (string)argv[1];
-	
 	client_header.client_id = getpid();
 	client_header.instruction_size = strlen(instruction);
 			
-	write(comChannel, client_header, sizeof(instruction_header));
+	printf("Sending instruction size %d, from client %d\n", client_header.instruction_size, client_header.client_id);
+			
+	write(comChannel, &client_header, sizeof(struct instruction_header));
 	write(comChannel, instruction, client_header.instruction_size);
 			
 	/* printf("Client pid: %s Read pid %d\n", pid_to_string(getpid()), getpid()); */

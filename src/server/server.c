@@ -10,6 +10,7 @@
 #include "../../include/structs.h"
 #include "../../include/defs.h"
 #include "../../include/server/parser.h"
+#include "../../include/filesystem/filesystem.h"
 
 
 int comChannel;
@@ -18,7 +19,7 @@ void server_close(void);
 
 int main() {
 	
-	instruction_header client_header;
+	instruction_header_t client_header = calloc(1, sizeof(instruction_header));
 	string instruction_string;
 	
 	signal(SIGINT, (__sighandler_t)server_close);
@@ -39,16 +40,18 @@ int main() {
 	comChannel = open(SERVER_CHANNEL, O_RDONLY);
 	
 	while(1) {
-		if(read(comChannel, &client_header, sizeof(instruction_header)) > 0) {
-			instruction_string = calloc(1, client_header.instruction_size);
+		if(read(comChannel, client_header, sizeof(struct instruction_header)) > 0) {
+			instruction_string = calloc(1, client_header->instruction_size);
 
-			while(read(comChannel, instruction_string, client_header.instruction_size) == 0)
+			while(read(comChannel, instruction_string, client_header->instruction_size) == 0)
 				sleep(1);
 				
 			printf("Received instruction from client: %d, instruction: %s\n",
-				client_header.client_id, instruction_string);
+				client_header->client_id, instruction_string);
 				
-			parse_string(instruction_string);
+			if (parse_string(instruction_string) == -1) {
+				printf("%s not a valid instruction\n", instruction_string);
+			}
 				
 			free(instruction_string);
 		}
