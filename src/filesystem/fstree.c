@@ -24,8 +24,9 @@ fstree_t new_fstree ( void ) {
 	fstree_t tree = ( fstree_t )calloc( sizeof( fstree ) , 1 );
 	if ( tree == NULL )
 		return NULL;
-	if ( ( tree->root = new_fstree_node( TRUE ) ) == NULL )
+	if ( ( tree->root = new_fstree_node( TRUE, CVS_ROOT_NAME ) ) == NULL )
 		return NULL;
+	return tree;
 }
 
 error add_fslist( fslist_t list , fstree_node_t node_to_add ) {

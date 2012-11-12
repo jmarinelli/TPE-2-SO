@@ -36,3 +36,7 @@ typedef fslist_node *		fslist_node_t;
 
 #define SERVER_CHANNEL "/tmp/server"
 #define CVS_TREE_PATH "/tmp/cvs/config/tree"
+
+/* System Tree */
+
+#define CVS_ROOT_NAME "root"
