@@ -53,6 +53,6 @@ error add_child ( fstree_node_t parent , fstree_node_t child ) {
 error new_directory ( fstree_node_t parent , string filename ) {
 	fstree_node_t node = new_fstree_node( TRUE , filename );
 	if ( node == NULL )
-		return NON_EXISTING_PARENT;
+		return NO_MEMORY;
 	return add_child( parent , node );
 }
