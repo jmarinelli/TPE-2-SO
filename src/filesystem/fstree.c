@@ -55,6 +55,44 @@ error add_child ( fstree_node_t parent , fstree_node_t child ) {
 	return add_fslist( parent->children , child );
 }
 
+fstree_node_t find_child_by_path(fstree_node_t node, string path) {
+	fslist_node_t aux_node = node->children->first;
+	fstree_node_t ret;
+	while (aux_node) {
+		ret = aux_node->child;
+		if (!strcmp(ret->filename, path))
+			return ret;
+		aux_node = aux_node->next;
+	}
+	return NULL;
+}
+
+fstree_node_t add_node_if_not_existing(fstree_node_t node, string path, bool is_dir){
+	fstree_node_t aux_node = find_child_by_path(node, path);
+	if (!aux_node) {
+		aux_node = new_fstree_node(is_dir, path, 0); /* Despues vemos el inodo */
+		add_child(node, aux_node); 
+	}
+	return aux_node;
+}
+
+error update_child_from_path(fstree_t tree, string path) {
+	char * position;
+	char * aux = calloc(1, MAX_PATH_LENGTH);
+	fstree_node_t current_node = tree->root;
+	strcpy(aux, path);
+	
+	while(position = strchr(aux, '/')) {
+		*position = 0;
+		current_node = add_node_if_not_existing(current_node, aux, TRUE);
+		aux = position+1;
+	}
+	
+	if (!add_node_if_not_existing(current_node, aux, TRUE))
+			return NO_MEMORY;
+	return SUCCESS;
+}
+
 fstree_node_t nodecpy ( fstree_node_t node_to_cpy ) {
 	return new_fstree_node(node_to_cpy->is_directory, 
 					node_to_cpy->filename, node_to_cpy->server_inode);

@@ -47,3 +47,5 @@ typedef instruction_header * instruction_header_t;
 /* System Tree */
 
 #define CVS_ROOT_NAME "root"
+#define IS_FILE 1
+#define IS_DIRECTORY 2

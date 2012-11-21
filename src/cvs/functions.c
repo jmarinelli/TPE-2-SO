@@ -40,17 +40,33 @@ int checkout(char* dest, int client_id)
 
 int add(char* dest, char* file, int client_id) {
 	fstree_t client_tree;
-	int root_client_id;
-	if (check_existing_file(dest, file)){
-		root_client_id = get_client_id(dest);
-		if (root_client_id == -1) 
+	char * parent_dest, * child_file, * position; 
+	int base_client_id, file_type;
+	child_file = (char *)calloc(1, MAX_PATH_LENGTH);
+	parent_dest = (char *)calloc(1, MAX_PATH_LENGTH);
+	strcpy(parent_dest, dest);
+	strcpy(child_file, file);
+	while (position = strchr(child_file, '/')) {
+		*position = 0;
+		if (check_existing_file(parent_dest, child_file) == NON_EXISTING_FILE)
+			return -1;
+		strcat(parent_dest, "/");
+		strcat(parent_dest, child_file);
+		child_file = position+1;
+	}
+	
+	file_type = check_existing_file(parent_dest, child_file);
+	
+	if (file_type != NON_EXISTING_FILE){
+		base_client_id = get_client_id(dest);
+		if (base_client_id == -1) 
 			return;	
-		client_tree = get_client_tree(root_client_id); 
+		client_tree = get_client_tree(base_client_id); 
+		update_child_from_path(client_tree, file);
 		return 0;
 	}
 	return NON_EXISTING_FILE;
 }
-
 
 //Para despues
 call_getcwd(void)

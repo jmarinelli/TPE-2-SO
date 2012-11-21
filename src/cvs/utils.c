@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 #include "../../include/structs.h"
 #include "../../include/defs.h"
@@ -20,12 +21,27 @@ fstree_t get_client_tree(int client_id){
 	}
 	
 	ans = (fstree_t)branch_tree(repository_tree);
+	ans->tree_id = client_id;
 	dlist_add(ans, sizeof(fstree), tree_list);
 	return ans;
 }
 
-bool check_existing_file (char* path, char*file) {
-	return FALSE;
+int check_existing_file (char* path, char*file) {
+	DIR * d = opendir(path);
+	struct dirent entry;
+	struct dirent * result;
+	do {
+		readdir_r(d, &entry, &result);
+		if ( strncmp(entry.d_name, ".", 1) && strncmp(entry.d_name, "..", 2) ) {
+			if (!strcmp(entry.d_name, file)) {
+				if (entry.d_type == DT_DIR)
+					return IS_DIRECTORY;
+				else
+					return IS_FILE;
+			}
+		}
+	} while (result != NULL);
+	return NON_EXISTING_FILE;
 }
 
 int get_client_id(char* dest) {
