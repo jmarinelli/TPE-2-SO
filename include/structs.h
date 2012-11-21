@@ -2,7 +2,7 @@
 
 typedef struct dlist_node {
 	void * data;
-	size_t data_size;
+	unsigned data_size;
 	struct dlist_node * previous;
 	struct dlist_node * next;
 } dlist_node;
@@ -22,7 +22,7 @@ typedef struct fslist_node {
 
 typedef struct fslist {
 	struct fslist_node * first;
-	size_t size;
+	unsigned size;
 } fslist;
 
 typedef struct fstree_node {

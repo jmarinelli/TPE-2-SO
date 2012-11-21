@@ -8,5 +8,3 @@ By:
 	Juan Jose Marinelli
 	Lucas Moscovicz
 	Alan Pomerantz
-
-

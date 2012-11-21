@@ -1,1 +1,1 @@
-void filesystem_init(void);
+fstree_t filesystem_init(void);

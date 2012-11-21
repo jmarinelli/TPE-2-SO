@@ -34,7 +34,7 @@ typedef fslist_node *		fslist_node_t;
 
 /* Paths */
 
-#define SERVER_CHANNEL "/tmp/server"
+#define SERVER_CHANNEL "/share/cvs"
 #define CVS_TREE_PATH "/tmp/cvs/config/tree"
 
 /* System Tree */

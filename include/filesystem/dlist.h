@@ -1,2 +1,2 @@
 dlist_t 	new_dlist	(void);
-int 		add			(void *, size_t, dlist_t);
+int 		add			(void *, unsigned, dlist_t);

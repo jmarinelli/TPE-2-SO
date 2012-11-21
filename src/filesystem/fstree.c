@@ -1,6 +1,10 @@
-#include "../../include/defs.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "../../include/structs.h"
-#include "../../include/dlist.h"
+#include "../../include/defs.h"
+#include "../../include/filesystem/dlist.h"
 
 fslist_t new_fslist ( void ) {
 	return ( fslist_t )calloc( sizeof( fslist ) , 1 );
@@ -11,11 +15,11 @@ fstree_node_t new_fstree_node ( bool is_directory , string filename) {
 				( fstree_node_t )calloc( sizeof( fstree_node ) , 1 );
 	if ( node == NULL )
 		return NULL;
-
-	node->filename = filename;
+	node->filename = calloc( sizeof(char) , strlen(filename) + 1 );
+	memcpy(node->filename, filename, strlen(filename) + 1);
 	node->is_directory = is_directory;
 	node->versions = new_dlist(); // (?)
-	if ( ( node->childen = new_fslist() ) == NULL )
+	if ( ( node->children = new_fslist() ) == NULL )
 		return NULL;
 	return node;
 }
@@ -39,6 +43,7 @@ error add_fslist( fslist_t list , fstree_node_t node_to_add ) {
 	new_node->next = aux_node;
 	list->first = new_node;
 	list->size++;
+	printf("child: %s\n", list->first->child->filename);
 	return SUCCESS;
 }
 
@@ -48,11 +53,4 @@ error add_child ( fstree_node_t parent , fstree_node_t child ) {
 	if ( !parent->is_directory )
 		return NO_DIRECTORY;
 	return add_fslist( parent->children , child );
-}
-
-error new_directory ( fstree_node_t parent , string filename ) {
-	fstree_node_t node = new_fstree_node( TRUE , filename );
-	if ( node == NULL )
-		return NO_MEMORY;
-	return add_child( parent , node );
 }
