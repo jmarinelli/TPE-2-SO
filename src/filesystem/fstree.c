@@ -54,3 +54,29 @@ error add_child ( fstree_node_t parent , fstree_node_t child ) {
 		return NO_DIRECTORY;
 	return add_fslist( parent->children , child );
 }
+
+fstree_node_t nodecpy ( fstree_node_t node_to_cpy ) {
+	return new_fstree_node(node_to_cpy->is_directory, 
+					node_to_cpy->filename, node_to_cpy->server_inode);
+}
+
+fstree_node_t treecpy ( fstree_node_t old_node ) {
+	fstree_node_t aux_node;
+	fstree_node_t new_node;
+	if (!old_node->children->size)
+		return nodecpy(old_node);
+	new_node = nodecpy(old_node);
+	aux_node = old_node->children->first;
+	while (aux_node ! = NULL) {
+		add_child(new_node, treecpy(aux_node->child);
+		aux_node = aux_node->next;
+	}
+	return new_node;
+}
+
+fstree_t branch_tree ( fstree_t old_tree ) {
+	fstree_t new_tree = new_fstree();
+	fstree_node_t new_root = treecpy(old_tree->root);
+	new_tree->root = new_root;
+	return new_tree;
+}
