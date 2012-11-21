@@ -29,6 +29,8 @@ typedef struct fstree_node {
 	fslist * children;
 	unsigned is_directory;
 	dlist * versions;		// sin uso APARENTE por ahora
+	unsigned server_inode;
+	unsigned client_inode;
 	char * filename;
 } fstree_node;
 

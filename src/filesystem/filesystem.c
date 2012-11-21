@@ -34,7 +34,6 @@ void retrieve_tree(char * path , fstree_node_t node) {
 	char new_path[256];
 	do {
 		readdir_r(dir_path, &entry, &result);
-		//printf("%s\n", entry.d_name);
 		if ( strncmp(entry.d_name, ".", 1) && strncmp(entry.d_name, "..", 2) ) {
 			if( entry.d_type == DT_DIR ) {
 				is_dir = TRUE;
@@ -42,7 +41,7 @@ void retrieve_tree(char * path , fstree_node_t node) {
 				strcat( new_path , "/" );
 				strcat( new_path , entry.d_name );
 			}
-			new_child = new_fstree_node( is_dir , entry.d_name );
+			new_child = new_fstree_node( is_dir , entry.d_name , entry.d_ino);
 			add_child( node , new_child );
 			if ( is_dir )
 				retrieve_tree( new_path , new_child );

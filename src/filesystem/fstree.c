@@ -10,7 +10,7 @@ fslist_t new_fslist ( void ) {
 	return ( fslist_t )calloc( sizeof( fslist ) , 1 );
 }
 
-fstree_node_t new_fstree_node ( bool is_directory , string filename) {
+fstree_node_t new_fstree_node ( bool is_directory , string filename , unsigned inode ) {
 	fstree_node_t node = 
 				( fstree_node_t )calloc( sizeof( fstree_node ) , 1 );
 	if ( node == NULL )
@@ -19,6 +19,7 @@ fstree_node_t new_fstree_node ( bool is_directory , string filename) {
 	memcpy(node->filename, filename, strlen(filename) + 1);
 	node->is_directory = is_directory;
 	node->versions = new_dlist(); // (?)
+	node->server_inode = inode;
 	if ( ( node->children = new_fslist() ) == NULL )
 		return NULL;
 	return node;
@@ -28,7 +29,7 @@ fstree_t new_fstree ( void ) {
 	fstree_t tree = ( fstree_t )calloc( sizeof( fstree ) , 1 );
 	if ( tree == NULL )
 		return NULL;
-	if ( ( tree->root = new_fstree_node( TRUE, CVS_ROOT_NAME ) ) == NULL )
+	if ( ( tree->root = new_fstree_node( TRUE, CVS_ROOT_NAME, 0 ) ) == NULL )
 		return NULL;
 	return tree;
 }
