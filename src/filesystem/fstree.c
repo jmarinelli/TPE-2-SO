@@ -61,14 +61,14 @@ fstree_node_t nodecpy ( fstree_node_t node_to_cpy ) {
 }
 
 fstree_node_t treecpy ( fstree_node_t old_node ) {
-	fstree_node_t aux_node;
+	fslist_node_t aux_node;
 	fstree_node_t new_node;
 	if (!old_node->children->size)
 		return nodecpy(old_node);
 	new_node = nodecpy(old_node);
 	aux_node = old_node->children->first;
-	while (aux_node ! = NULL) {
-		add_child(new_node, treecpy(aux_node->child);
+	while (aux_node != NULL) {
+		add_child(new_node, treecpy(aux_node->child));
 		aux_node = aux_node->next;
 	}
 	return new_node;
