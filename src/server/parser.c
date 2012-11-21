@@ -4,6 +4,7 @@
 
 #include "../../include/structs.h"
 #include "../../include/defs.h"
+#include "../../include/cvs/functions.h"
 
 
 char * command_list[CANT_INSTRUCTIONS];
@@ -56,8 +57,7 @@ int parse_string(char * instr, char * cwd){
 
 int parse_checkout(char * instr, char * cwd){
 	if (strlen(instr) == strlen("checkout")) {
-		printf("Checkout\n");
-		//return checkout(cwd);
+		return checkout(cwd);
 	}
 	return -1;
 }

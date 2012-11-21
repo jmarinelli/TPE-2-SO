@@ -34,8 +34,10 @@ typedef fslist_node *		fslist_node_t;
 
 /* Paths */
 
-#define SERVER_CHANNEL "/share/cvs"
+#define REPOSITORY_PATH "/usr/share/cvs"
+#define SERVER_CHANNEL "/tmp/server"
 #define CVS_TREE_PATH "/tmp/cvs/config/tree"
+#define MAX_PATH_LENGTH	1024
 
 /* System Tree */
 

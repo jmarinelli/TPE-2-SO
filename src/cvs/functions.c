@@ -3,49 +3,41 @@
 #include <fcntl.h>
 #include <string.h>
 
-#include <sys/shm.h>
-#include <sys/stat.h>
-#define MAX_LEN 1024
-
-
-
-int main (void)
-{
-   char* p;
-   p = (char*)malloc(1000);
-   strcat(p,"/home/juanjo/TPE-2-SO/src/cvs2");
-   checkout(p);
-}
+#include "../../include/structs.h"
+#include "../../include/defs.h"
 
 int checkout(char* dest)
 {
-int status;
-char* origin=(char *)malloc(1024);
-char* mypath = (char*) malloc(1024);
-strcat(mypath,"cp -r ");
-
-
-if ((status = mkdir(dest, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) == -1) //Aca iria el path
-    fprintf(stderr, "El directorio ya existe \n"); 
+	int status;
+	FILE * f;
+	char* origin=(char *)malloc(MAX_PATH_LENGTH);
+	char* mypath = (char*) malloc(MAX_PATH_LENGTH);
+	strcat(mypath,"cp -r ");
+	strcat(dest,"/cvs");
+	
+	if ((f = fopen(dest, "r")) != NULL) {
+		printf("The directory already exists \n"); 
+		return 0;
+	}
     
-    snprintf(origin, MAX_LEN, "/home/juanjo/lalala"); //Concatenar con path mas cp -r
-    strcat(mypath,origin);
+    snprintf(origin, strlen(REPOSITORY_PATH)+1, REPOSITORY_PATH);
+    strcat(mypath, origin);
     strcat(mypath," ");
     strcat(mypath,dest);
-    printf("\n\n\n Se copio aca: %s\n", mypath);
     system(mypath);
+    return 0;
 }
 
 //Para despues
 call_getcwd(void)
 {
     char * cwd;
-    cwd = getcwd(0, 0);
+    cwd = (string)getcwd(0, 0);
     if (!cwd) {
-	fprintf (stderr, "getcwd failed\n");
+		fprintf (stderr, "getcwd failed\n");
     } else {
-	printf ("%s\n", cwd);
-	free(cwd);
+		printf ("%s\n", cwd);
+		free(cwd);
     }
     return;
 }

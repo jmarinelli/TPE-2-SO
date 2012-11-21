@@ -21,7 +21,7 @@ fstree_t filesystem_init() {
 	 * 
 	 * */
 	 fstree_t tree = new_fstree();
-	 retrieve_tree(SERVER_CHANNEL, tree->root);
+	 retrieve_tree(REPOSITORY_PATH, tree->root);
 	 return tree;
 }
 

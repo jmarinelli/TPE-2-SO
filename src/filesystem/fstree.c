@@ -44,7 +44,6 @@ error add_fslist( fslist_t list , fstree_node_t node_to_add ) {
 	new_node->next = aux_node;
 	list->first = new_node;
 	list->size++;
-	printf("child: %s\n", list->first->child->filename);
 	return SUCCESS;
 }
 
