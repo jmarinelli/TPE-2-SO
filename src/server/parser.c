@@ -7,16 +7,16 @@
 
 
 char * command_list[CANT_INSTRUCTIONS];
-int (* functions_list[CANT_INSTRUCTIONS]) (char *);
+int (* functions_list[CANT_INSTRUCTIONS]) (char *, char *);
 
 void set_lists(void);
 
-int parse_checkout(char * instr);
-int parse_add(char * instr);
-int parse_delete(char * instr);
-int parse_update(char * instr);
-int parse_commit(char * instr);
-int parse_diff(char * instr);
+int parse_checkout(char * instr, char * cwd);
+int parse_add(char * instr, char * cwd);
+int parse_delete(char * instr, char * cwd);
+int parse_update(char * instr, char * cwd);
+int parse_commit(char * instr, char * cwd);
+int parse_diff(char * instr, char * cwd);
 
 void parser_init() {
 	set_lists();
@@ -38,7 +38,7 @@ void set_lists(){
 	functions_list[5] = &parse_diff;
 }
 
-int parse_string(char * instr){
+int parse_string(char * instr, char * cwd){
 
 	int i, cmd_length, ret;
 
@@ -46,7 +46,7 @@ int parse_string(char * instr){
 		for(i = 0; i < CANT_INSTRUCTIONS; i++){
 			cmd_length = strlen(command_list[i]);
 			if (!strncmp(instr, command_list[i], cmd_length)){
-				return functions_list[i](instr);
+				return functions_list[i](instr, cwd);
 			}
 		}
 	}
@@ -54,56 +54,56 @@ int parse_string(char * instr){
 }
 
 
-int parse_checkout(char * instr){
+int parse_checkout(char * instr, char * cwd){
 	if (strlen(instr) == strlen("checkout")) {
 		printf("Checkout\n");
-		//return checkout();
+		//return checkout(cwd);
 	}
 	return -1;
 }
 
-int parse_add(char * instr){
+int parse_add(char * instr, char * cwd){
 	char file[MAX_NAME_SIZE];
 	if (sscanf(instr, "add %s", file)){
 		if (file != "") {
 			printf("Add\n");
-			//return add(file);
+			//return add(cwd, file);
 		}
 	}
 	return -1;
 }
 
-int parse_delete(char * instr){
+int parse_delete(char * instr, char * cwd){
 	char file[MAX_NAME_SIZE];
 	if (sscanf(instr, "delete %s", file)){
 		if (file != "") {
 			printf("Delete\n");
-			//return delete(file);
+			//return delete(cwd, file);
 		}
 	}
 	return -1;
 }
 
-int parse_update(char * instr){
+int parse_update(char * instr, char * cwd){
 	if (strlen(instr) == strlen("update")) {
 		printf("Update\n");
-		//return update();
+		//return update(cwd);
 	}
 	return -1;
 }
 
-int parse_commit(char * instr){
+int parse_commit(char * instr, char * cwd){
 	if (strlen(instr) == strlen("commit")) {
 		printf("Commit\n");
-		//return commit();
+		//return commit(cwd);
 	}
 	return -1;
 }
 
-int parse_diff(char * instr){
+int parse_diff(char * instr, char * cwd){
 	if (strlen(instr) == strlen("diff")) {
 		printf("Diff\n");
-		//return diff();
+		//return diff(cwd);
 	}
 	return -1;
 }

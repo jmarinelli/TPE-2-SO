@@ -40,6 +40,8 @@ typedef struct fstree {
 
 typedef struct instruction_header {
 	int instruction_size;
+	int current_path_size;
+	int parameter_size;
 	int client_id;
 } instruction_header;
 
