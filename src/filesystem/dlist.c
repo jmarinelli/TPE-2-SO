@@ -11,7 +11,7 @@ dlist_t new_dlist() {
 	return new_list;
 }
 
-int add(void * data, size_t data_size, dlist_t list) {
+int dlist_add(void * data, size_t data_size, dlist_t list) {
 	dlist_node_t aux;
 	if ( list == NULL )
 		return -1;

@@ -35,6 +35,7 @@ typedef instruction_header * instruction_header_t;
 #define NON_EXISTING_PARENT	-1
 #define NO_DIRECTORY		-2
 #define NO_MEMORY			-3
+#define NON_EXISTING_FILE	-4
 
 /* Paths */
 

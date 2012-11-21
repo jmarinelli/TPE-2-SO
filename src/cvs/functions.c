@@ -5,6 +5,7 @@
 
 #include "../../include/structs.h"
 #include "../../include/defs.h"
+#include "../../include/cvs/utils.h"
 
 int checkout(char* dest, int client_id)
 {
@@ -25,11 +26,29 @@ int checkout(char* dest, int client_id)
     strcat(mypath," ");
     strcat(mypath,dest);
     system(mypath);
+    
+    strcpy(mypath, dest);
+    strcat(mypath, "/.cvs");
+        
+    if ((f = fopen(mypath, "w")) != NULL) {
+		fprintf(f, "%d\n", client_id);
+		fclose(f);
+	}
+	
     return 0;
 }
 
 int add(char* dest, char* file, int client_id) {
-	
+	fstree_t client_tree;
+	int root_client_id;
+	if (check_existing_file(dest, file)){
+		root_client_id = get_client_id(dest);
+		if (root_client_id == -1) 
+			return;	
+		client_tree = get_client_tree(root_client_id); 
+		return 0;
+	}
+	return NON_EXISTING_FILE;
 }
 
 

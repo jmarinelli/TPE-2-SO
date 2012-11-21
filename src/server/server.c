@@ -32,7 +32,7 @@ int main() {
 	repository_tree = filesystem_init();
 	repository_tree->tree_id = 0;
 	
-	tree_list = new_dlist();
+	tree_list = (dlist_t)new_dlist();
 		
 	if ( mkfifo(SERVER_CHANNEL, 0666) == -1 ) {
 		if (errno != EEXIST) {
