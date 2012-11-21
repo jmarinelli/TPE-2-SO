@@ -13,7 +13,7 @@ int main(int argc, int ** argv) {
 	
 	int comChannel;
 	
-	string instruction;
+	string instruction, parameter;
 	instruction_header client_header;
 	
 	if (argc < 2) {
@@ -28,11 +28,23 @@ int main(int argc, int ** argv) {
 	instruction = (string)argv[1];
 	client_header.client_id = getpid();
 	client_header.instruction_size = strlen(instruction);
-			
+	client_header.current_path_size = strlen((string)getcwd(0,0));
+		
+	if (argc < 3) {
+		client_header.parameter_size = 0;
+		parameter = "";
+	} else {
+		parameter = (string)argv[2];
+		client_header.parameter_size = strlen(parameter);
+	}
+	
+	
 	printf("Sending instruction size %d, from client %d\n", client_header.instruction_size, client_header.client_id);
 			
 	write(comChannel, &client_header, sizeof(struct instruction_header));
 	write(comChannel, instruction, client_header.instruction_size);
+	write(comChannel, getcwd(0,0), client_header.current_path_size);
+	write(comChannel, parameter, client_header.parameter_size);
 			
 	/* printf("Client pid: %s Read pid %d\n", pid_to_string(getpid()), getpid()); */
 	
