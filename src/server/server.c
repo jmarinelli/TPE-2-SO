@@ -15,6 +15,9 @@
 
 int comChannel;
 fstree_t repository_tree;
+dlist_t tree_list;
+
+
 
 void server_close(void);
 
@@ -27,7 +30,10 @@ int main() {
 	
 	parser_init();
 	repository_tree = filesystem_init();
+	repository_tree->tree_id = 0;
 	
+	tree_list = new_dlist();
+		
 	if ( mkfifo(SERVER_CHANNEL, 0666) == -1 ) {
 		if (errno != EEXIST) {
 			/* fatal("Error mkfifo");
@@ -61,7 +67,7 @@ int main() {
 			printf("Received instruction from client: %d, instruction: %s, working dir %s\n",
 				client_header->client_id, instruction_string, client_working_dir);
 				
-			if (parse_string(instruction_string, client_working_dir) == -1) {
+			if (parse_string(instruction_string, client_working_dir, client_header->client_id) == -1) {
 				printf("%s not a valid instruction\n", instruction_string);
 			}
 			

@@ -8,16 +8,16 @@
 
 
 char * command_list[CANT_INSTRUCTIONS];
-int (* functions_list[CANT_INSTRUCTIONS]) (char *, char *);
+int (* functions_list[CANT_INSTRUCTIONS]) (char *, char *, int);
 
 void set_lists(void);
 
-int parse_checkout(char * instr, char * cwd);
-int parse_add(char * instr, char * cwd);
-int parse_delete(char * instr, char * cwd);
-int parse_update(char * instr, char * cwd);
-int parse_commit(char * instr, char * cwd);
-int parse_diff(char * instr, char * cwd);
+int parse_checkout(char * instr, char * cwd, int cid);
+int parse_add(char * instr, char * cwd, int cid);
+int parse_delete(char * instr, char * cwd, int cid);
+int parse_update(char * instr, char * cwd, int cid);
+int parse_commit(char * instr, char * cwd, int cid);
+int parse_diff(char * instr, char * cwd, int cid);
 
 void parser_init() {
 	set_lists();
@@ -39,7 +39,7 @@ void set_lists(){
 	functions_list[5] = &parse_diff;
 }
 
-int parse_string(char * instr, char * cwd){
+int parse_string(char * instr, char * cwd, int cid){
 
 	int i, cmd_length, ret;
 
@@ -47,7 +47,7 @@ int parse_string(char * instr, char * cwd){
 		for(i = 0; i < CANT_INSTRUCTIONS; i++){
 			cmd_length = strlen(command_list[i]);
 			if (!strncmp(instr, command_list[i], cmd_length)){
-				return functions_list[i](instr, cwd);
+				return functions_list[i](instr, cwd, cid);
 			}
 		}
 	}
@@ -55,55 +55,54 @@ int parse_string(char * instr, char * cwd){
 }
 
 
-int parse_checkout(char * instr, char * cwd){
+int parse_checkout(char * instr, char * cwd, int cid){
 	if (strlen(instr) == strlen("checkout")) {
-		return checkout(cwd);
+		return checkout(cwd, cid);
 	}
 	return -1;
 }
 
-int parse_add(char * instr, char * cwd){
+int parse_add(char * instr, char * cwd, int cid){
 	char file[MAX_NAME_SIZE];
 	if (sscanf(instr, "add %s", file)){
 		if (file != "") {
-			printf("Add\n");
-			//return add(cwd, file);
+			return add(cwd, file, cid);
 		}
 	}
 	return -1;
 }
 
-int parse_delete(char * instr, char * cwd){
+int parse_delete(char * instr, char * cwd, int cid){
 	char file[MAX_NAME_SIZE];
 	if (sscanf(instr, "delete %s", file)){
 		if (file != "") {
 			printf("Delete\n");
-			//return delete(cwd, file);
+			//return delete(cwd, file, cid);
 		}
 	}
 	return -1;
 }
 
-int parse_update(char * instr, char * cwd){
+int parse_update(char * instr, char * cwd, int cid){
 	if (strlen(instr) == strlen("update")) {
 		printf("Update\n");
-		//return update(cwd);
+		//return update(cwd, cid);
 	}
 	return -1;
 }
 
-int parse_commit(char * instr, char * cwd){
+int parse_commit(char * instr, char * cwd, int cid){
 	if (strlen(instr) == strlen("commit")) {
 		printf("Commit\n");
-		//return commit(cwd);
+		//return commit(cwd, cid);
 	}
 	return -1;
 }
 
-int parse_diff(char * instr, char * cwd){
+int parse_diff(char * instr, char * cwd, int cid){
 	if (strlen(instr) == strlen("diff")) {
 		printf("Diff\n");
-		//return diff(cwd);
+		//return diff(cwd, cid);
 	}
 	return -1;
 }

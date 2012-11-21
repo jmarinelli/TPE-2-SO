@@ -11,15 +11,6 @@ fstree_t filesystem_init();
 
 fstree_t filesystem_init() {
 	
-	/*
-	 * TODO: 
-	 * 
-	 * - Dentro de la carpeta cvs busca la carpeta config con el archivo
-	 * 	 con el arbol guardado y lo levanta a memoria, si no esta lo 
-	 *   crea.
-	 * - 
-	 * 
-	 * */
 	 fstree_t tree = new_fstree();
 	 retrieve_tree(REPOSITORY_PATH, tree->root);
 	 return tree;
@@ -42,7 +33,7 @@ void retrieve_tree(char * path , fstree_node_t node) {
 	bool already_read = FALSE;
 	struct dirent entry;
 	struct dirent * result;
-	char new_path[256];
+	char new_path[MAX_PATH_LENGTH];
 	do {
 		readdir_r(dir_path, &entry, &result);
 		if (!tree_contains(node, entry.d_name)) {

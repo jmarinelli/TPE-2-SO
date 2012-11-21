@@ -16,6 +16,10 @@ typedef fstree_node * 		fstree_node_t;
 typedef fslist *			fslist_t;
 typedef fslist_node *		fslist_node_t;
 
+/* IPC Headers */
+
+typedef instruction_header * instruction_header_t;
+
 /* Parser */
 
 #define CLEAN_LINE int i;for(i=0;i<MAX_INSTRUCTION_LENGTH;i++)line[i]=0;

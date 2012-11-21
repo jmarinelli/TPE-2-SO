@@ -6,7 +6,7 @@
 #include "../../include/structs.h"
 #include "../../include/defs.h"
 
-int checkout(char* dest)
+int checkout(char* dest, int client_id)
 {
 	int status;
 	FILE * f;
@@ -27,6 +27,11 @@ int checkout(char* dest)
     system(mypath);
     return 0;
 }
+
+int add(char* dest, char* file, int client_id) {
+	
+}
+
 
 //Para despues
 call_getcwd(void)
