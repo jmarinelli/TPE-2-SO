@@ -76,7 +76,7 @@ fstree_node_t add_node_if_not_existing(fstree_node_t node, string path, bool is_
 	return aux_node;
 }
 
-error update_child_from_path(fstree_t tree, string path, bool is_dir) {
+error update_child_from_path(fstree_t tree, string path, bool is?dir) {
 	char * position;
 	char * aux = calloc(1, MAX_PATH_LENGTH);
 	fstree_node_t current_node = tree->root;
