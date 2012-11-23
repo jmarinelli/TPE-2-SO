@@ -16,6 +16,10 @@ typedef fstree_node * 		fstree_node_t;
 typedef fslist *			fslist_t;
 typedef fslist_node *		fslist_node_t;
 
+/* IPC Headers */
+
+typedef instruction_header * instruction_header_t;
+
 /* Parser */
 
 #define CLEAN_LINE int i;for(i=0;i<MAX_INSTRUCTION_LENGTH;i++)line[i]=0;
@@ -31,12 +35,17 @@ typedef fslist_node *		fslist_node_t;
 #define NON_EXISTING_PARENT	-1
 #define NO_DIRECTORY		-2
 #define NO_MEMORY			-3
+#define NON_EXISTING_FILE	-4
 
 /* Paths */
 
-#define SERVER_CHANNEL "/share/cvs"
+#define REPOSITORY_PATH "/usr/share/cvs"
+#define SERVER_CHANNEL "/tmp/server"
 #define CVS_TREE_PATH "/tmp/cvs/config/tree"
+#define MAX_PATH_LENGTH	1024
 
 /* System Tree */
 
 #define CVS_ROOT_NAME "root"
+#define IS_FILE 1
+#define IS_DIRECTORY 2

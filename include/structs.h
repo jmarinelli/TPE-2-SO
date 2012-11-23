@@ -36,6 +36,7 @@ typedef struct fstree_node {
 
 typedef struct fstree {
 	struct fstree_node * root;
+	int tree_id;
 } fstree;
 
 /* IPC Headers */
@@ -47,4 +48,3 @@ typedef struct instruction_header {
 	int client_id;
 } instruction_header;
 
-typedef instruction_header * instruction_header_t;
