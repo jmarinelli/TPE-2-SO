@@ -83,9 +83,10 @@ int parse_delete(char * instr, char * cwd, int cid){
 }
 
 int parse_update(char * instr, char * cwd, int cid){
-	if (strlen(instr) == strlen("update")) {
+	char file[MAX_NAME_SIZE];
+	if (sscanf(instr, "update %s", file)){
 		printf("Update\n");
-		return update(cwd, cid);
+		return update(cwd,file,cid);
 	}
 	return -1;
 }
