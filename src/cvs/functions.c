@@ -10,6 +10,8 @@
 #include "../../include/filesystem/fstree.h"
 #include "../../include/filesystem/filesystem.h"
 
+extern fstree_t repository_tree;
+
 int checkout(char* dest, int client_id)
 {
 	int status;
@@ -43,13 +45,16 @@ int checkout(char* dest, int client_id)
 
 int update(char* dest, char* file, int client_id){
 	fstree_t client_tree;
-	char * child_file, * position, *command, *containing_folder;
+	fstree_node_t current = client_tree->root;
+	char * child_file, * position, *command, *server_folder, *client_folder;
 	
 	child_file = (char *)calloc(1, MAX_PATH_LENGTH);
-	containing_folder = (char *)calloc(1, MAX_PATH_LENGTH);
+	server_folder = (char *)calloc(1, MAX_PATH_LENGTH);
+	client_folder = (char *)calloc(1, MAX_PATH_LENGTH);
 	command = (char *)calloc(1, 1024);
 	strcpy(child_file, file);
-	
+	strcpy(server_folder, REPOSITORY_PATH);
+	strcpy(client_folder, dest);
 	
 	client_tree = repository_tree; 
 	
@@ -58,25 +63,27 @@ int update(char* dest, char* file, int client_id){
 		current =  find_child_by_path(current,child_file);
 		if (current == NULL)
 			return -1;
-		if (check_existing_file(parent_dest, child_file) == NON_EXISTING_FILE) {
+		if (check_existing_file(client_folder, child_file) == NON_EXISTING_FILE) {
 			strcpy(command,"mkdir ");
-			strcpy(command,parent_dest);
+			strcpy(command,client_folder);
 			strcpy(command,child_file);
 			system(command);
 		}
-		strcat(containing_folder,child_file);
-		strcat(containing_folder,"/");
+		strcat(client_folder,"/");
+		strcat(client_folder,child_file);
+		strcat(server_folder,"/");
+		strcat(server_folder,child_file);
 		child_file = position+1;
 	}
 	current =  find_child_by_path(current,child_file);
 	
 	if (current != NULL){
 		strcpy(command,"cp -rf ");
-		strcat(command,REPOSITORY_PATH);
+		strcat(command,server_folder);
 		strcat(command,"/");
 		strcat(command,file);
 		strcat(command," ");
-		strcpy(command,dest);
+		strcpy(command,client_folder);
 		strcat(command,file);
 
 		system(command);
