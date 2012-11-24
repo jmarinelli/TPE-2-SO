@@ -23,7 +23,7 @@ typedef instruction_header * instruction_header_t;
 /* Parser */
 
 #define CLEAN_LINE int i;for(i=0;i<MAX_INSTRUCTION_LENGTH;i++)line[i]=0;
-#define CANT_INSTRUCTIONS 	6
+#define CANT_INSTRUCTIONS 	7
 #define MAX_NAME_SIZE 		200
 #define CVS_LENGTH 			4
 #define TRUE				1
@@ -40,6 +40,7 @@ typedef instruction_header * instruction_header_t;
 /* Paths */
 
 #define REPOSITORY_PATH 	"/usr/share/cvs"
+#define OLD_REPO_PATH 		"/usr/share/cvs/old"
 #define SERVER_CHANNEL 		"/tmp/server"
 #define CVS_TREE_PATH 		"/tmp/cvs/config/tree"
 #define TEMP_PATH			"/tmp"

@@ -9,6 +9,7 @@
 #include "../../include/structs.h"
 #include "../../include/defs.h"
 #include "../../include/cvs/utils.h"
+#include "../../include/cvs/versions.h"
 #include "../../include/filesystem/fstree.h"
 #include "../../include/filesystem/filesystem.h"
 
@@ -22,7 +23,7 @@ int checkout(char* dest, int client_id)
 	strcat(dest,"/cvs");
 	
 	if ((f = fopen(dest, "r")) != NULL) {
-		printf("The directory already exists \n"); 
+		client_send("The directory already exists", client_id); 
 		return 0;
 	}
     
@@ -113,6 +114,7 @@ int delete(char* dest, char* file, int client_id) {
 	client_tree = get_client_tree(base_client_id); 
 	
 	fstree_node_t current = client_tree->root;
+	current->status = INSIDE_CHANGED;
 	
 	while (position = strchr(child_file, '/')) {
 		*position = 0;
@@ -135,7 +137,6 @@ int delete(char* dest, char* file, int client_id) {
 		return -1;
 	}
 		
-	client_send("Deleted", client_id);
 	client_send(END_OF_TRANSMISSION, client_id);
 	return SUCCESS; 
 			
@@ -184,7 +185,6 @@ int add(char* dest, char* file, int client_id) {
 		} else {
 			update_child_from_path(client_tree, file, FALSE);
 		}
-		client_send("Added", client_id);
 		client_send(END_OF_TRANSMISSION, client_id);
 		return SUCCESS;
 	}
@@ -193,11 +193,12 @@ int add(char* dest, char* file, int client_id) {
 	return NON_EXISTING_FILE;
 }
 
-int commit_recursive(fstree_node_t node, char * path, char * server_path){
+int commit_recursive(fstree_node_t node, string path, string server_path, string old_path){
 	fslist_node_t aux_node;
 	fstree_node_t aux_tree_node;
 	string new_path;
 	string new_server_path;
+	string new_old_path;
 	string command;
 	switch(node->status) {
 		case INSIDE_CHANGED:
@@ -207,12 +208,14 @@ int commit_recursive(fstree_node_t node, char * path, char * server_path){
 				
 				new_path = append_to_path(path, aux_tree_node->filename);
 				new_server_path = append_to_path(server_path, aux_tree_node->filename);
+				new_old_path = append_to_path(old_path, aux_tree_node->filename);
 				
-				commit_recursive(aux_tree_node, new_path, new_server_path);
+				commit_recursive(aux_tree_node, new_path, new_server_path, new_old_path);
 			
 				free(new_path);
 				free(new_server_path);
-			
+				free(new_old_path);
+					
 				aux_node = aux_node->next;	
 			}
 			break;
@@ -223,6 +226,7 @@ int commit_recursive(fstree_node_t node, char * path, char * server_path){
 			free(new_server_path);
 			break;
 		case UPDATED:
+			almacenarVersionesViejasEnLaCarpetaOldParaDespuesLeerlasYMostrarselasAlUsuarioParaQueLasUse(server_path, remove_last_appended(old_path), node->filename);
 			command = build_command(COMMAND_RM, server_path, NULL);
 			system(command);
 			free(command);
@@ -233,6 +237,7 @@ int commit_recursive(fstree_node_t node, char * path, char * server_path){
 			free(new_server_path);
 			break;
 		case DELETED:
+			almacenarVersionesViejasEnLaCarpetaOldParaDespuesLeerlasYMostrarselasAlUsuarioParaQueLasUse(server_path, remove_last_appended(old_path), node->filename);
 			command = build_command(COMMAND_RM, server_path, NULL);
 			system(command);
 			free(command);
@@ -247,10 +252,11 @@ int commit(char * path, int client_id) {
 	int base_client_id = get_client_id(path);
 	fstree_t client_tree = get_client_tree(base_client_id);
 	fstree_node_t current_node = client_tree->root;
-	commit_recursive(current_node, path, REPOSITORY_PATH);
+	commit_recursive(current_node, path, REPOSITORY_PATH, OLD_REPO_PATH);
 	/* Faltaria liberar todo el arbol anterior */
 	repository_tree = (fstree_t)new_fstree();
 	retrieve_tree(REPOSITORY_PATH, repository_tree->root);
+	remove_client_tree(base_client_id);
 	client_send("Changes commited", client_id);
 	client_send(END_OF_TRANSMISSION, client_id);
 }
@@ -372,4 +378,33 @@ int diff_r(char * path, char * server_path, fstree_node_t node, int client_id) {
 int diff(char * path, int client_id) {
 	fstree_node_t current_node = repository_tree->root;
 	return diff_r(path, "/usr/share", current_node, client_id);
+}
+
+
+int versions(char* dest, char* file, int client_id) {
+	fstree_node_t new_node;
+	char response[MAX_RESPONSE_SIZE];
+	int version;
+	char * parent_dest, * child_file, * position; 
+	child_file = (char *)calloc(1, MAX_PATH_LENGTH);
+	parent_dest = (char *)calloc(1, MAX_PATH_LENGTH);
+	strcpy(parent_dest, OLD_REPO_PATH);
+	strcpy(child_file, file);
+	while (position = strchr(child_file, '/')) {
+		*position = 0;
+		if (check_existing_file(parent_dest, child_file) == NON_EXISTING_FILE) {
+			client_send("No old versions found server", client_id);
+			client_send(END_OF_TRANSMISSION, client_id);
+			return -1;
+		}
+		strcat(parent_dest, "/");
+		strcat(parent_dest, child_file);
+		child_file = position+1;
+	}	
+	
+	version = get_max_version(child_file, parent_dest);
+	sprintf(response, "Versions for file %s found, numbers %d to %d\nType 'cvs backup' to revert changes to older versions.", 
+			child_file, 1, version);
+	client_send(response, client_id);
+	client_send(END_OF_TRANSMISSION, client_id);
 }

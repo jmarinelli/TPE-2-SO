@@ -14,7 +14,7 @@ fstree_t get_client_tree(int client_id){
 	dlist_node_t aux_node = tree_list->first;
 	fstree_t ans;
 	
-	while(aux_node != NULL) {
+	while(aux_node) {
 		ans = (fstree_t)aux_node->data;
 		if (ans->tree_id == client_id)
 			return ans;
@@ -25,6 +25,25 @@ fstree_t get_client_tree(int client_id){
 	ans->tree_id = client_id;
 	dlist_add(ans, sizeof(fstree), tree_list);
 	return ans;
+}
+
+void remove_client_tree(int client_id) {
+	dlist_node_t aux_curr_node = tree_list->first;
+	dlist_node_t aux_last_node = tree_list->first;
+	fstree_t ans;
+	
+	while(aux_curr_node) {
+		ans = (fstree_t)aux_curr_node->data;
+		if (ans->tree_id == client_id) {
+			if (aux_curr_node == aux_last_node)
+				tree_list->first = aux_curr_node->next;
+			else
+				aux_last_node->next = aux_curr_node->next;
+			return;
+		}
+		aux_last_node = aux_curr_node;
+		aux_curr_node = aux_curr_node->next;
+	}
 }
 
 int check_existing_file (char* path, char*file) {
