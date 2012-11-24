@@ -12,6 +12,7 @@
 #include "../../include/server/parser.h"
 #include "../../include/filesystem/filesystem.h"
 #include "../../include/filesystem/dlist.h"
+#include "../../include/server/server.h"
 
 
 int comChannel;
@@ -19,11 +20,13 @@ fstree_t repository_tree;
 dlist_t tree_list;
 
 void server_close(void);
+string get_string_from_pid(int);
 
 int main() {
 	
 	instruction_header_t client_header = calloc(1, sizeof(instruction_header));
 	string instruction_string, client_working_dir, parameter;
+	char response_string[MAX_RESPONSE_SIZE];
 	
 	signal(SIGINT, (__sighandler_t)server_close);
 	
@@ -67,7 +70,9 @@ int main() {
 				client_header->client_id, instruction_string, client_working_dir);
 				
 			if (parse_string(instruction_string, client_working_dir, client_header->client_id) == -1) {
-				printf("%s not a valid instruction\n", instruction_string);
+				sprintf(response_string, "%s not a valid instruction", instruction_string);
+				client_send(response_string, client_header->client_id);
+				client_send(END_OF_TRANSMISSION, client_header->client_id);
 			}
 			
 		}
@@ -89,4 +94,43 @@ void server_close(){
 
 	exit(0);
 
+}
+
+string get_string_from_pid (int pid)
+{
+	int aux = pid, cont = 0;
+	string file;
+
+	while(aux > 0)
+	{
+		aux /= 10;
+		cont++;
+	}
+	
+	cont += (TEMP_LENGTH);
+
+	file = calloc(cont + TEMP_LENGTH + 2, sizeof(char));
+	strcpy(file, TEMP_PATH);
+	strcat(file, "/");
+
+	while(pid > 0)
+	{
+		file[cont--] = pid % 10 + '0';
+		pid /= 10;
+	}
+
+	return file;
+}
+
+
+void client_send(string message, int client_id) {
+	string client_channel = get_string_from_pid(client_id);
+	int length = strlen(message);
+	int channel;
+	
+	while ((channel = open(client_channel, O_WRONLY)) == -1);
+	
+	write(channel, &length, sizeof(int));
+	write(channel, message, length);
+	close(channel);
 }
