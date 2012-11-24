@@ -63,4 +63,5 @@ typedef instruction_header * instruction_header_t;
 #define SPACE_SIZE		10
 
 #define COMMAND_CP		"sudo cp -r"
+#define COMMAND_CP_2	"cp -r"
 #define COMMAND_RM		"sudo rm -r"

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "../../include/structs.h"
 #include "../../include/defs.h"
@@ -14,11 +15,9 @@ extern fstree_t repository_tree;
 
 int checkout(char* dest, int client_id)
 {
-	int status;
 	FILE * f;
-	char* origin=(char *)malloc(MAX_PATH_LENGTH);
-	char* mypath = (char*) malloc(MAX_PATH_LENGTH);
-	strcat(mypath,"cp -r ");
+	string command;
+	string new_dest;
 	strcat(dest,"/cvs");
 	
 	if ((f = fopen(dest, "r")) != NULL) {
@@ -26,19 +25,19 @@ int checkout(char* dest, int client_id)
 		return 0;
 	}
     
-    snprintf(origin, strlen(REPOSITORY_PATH)+1, REPOSITORY_PATH);
-    strcat(mypath, origin);
-    strcat(mypath," ");
-    strcat(mypath,dest);
-    system(mypath);
+    new_dest = remove_last_appended(dest);
+    command = build_command(COMMAND_CP_2, REPOSITORY_PATH, new_dest);
+    system(command);
     
-    strcpy(mypath, dest);
-    strcat(mypath, "/.cvs");
+    strcpy(command, dest);
+    strcat(command, "/.cvs");
         
-    if ((f = fopen(mypath, "w")) != NULL) {
+    if ((f = fopen(command, "w")) != NULL) {
 		fprintf(f, "%d\n", client_id);
 		fclose(f);
 	}
+	
+	free(command);
 	
     return 0;
 }
@@ -65,7 +64,7 @@ int update(char* dest, char* file, int client_id){
 			return -1;
 		if (check_existing_file(client_folder, child_file) == NON_EXISTING_FILE) {
 			strcpy(command,"mkdir ");
-			strcpy(command,client_folder);
+			strcpy(command,client_folder); // No sera strcat?
 			strcpy(command,child_file);
 			system(command);
 		}
