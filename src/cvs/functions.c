@@ -8,6 +8,7 @@
 #include "../../include/defs.h"
 #include "../../include/cvs/utils.h"
 #include "../../include/filesystem/fstree.h"
+#include "../../include/filesystem/filesystem.h"
 
 int checkout(char* dest, int client_id)
 {
@@ -38,6 +39,38 @@ int checkout(char* dest, int client_id)
 	}
 	
     return 0;
+}
+
+int delete(char* dest, char* file, int client_id) {
+	
+	fstree_t client_tree;
+	char * child_file, * position; 
+	int base_client_id, file_type;
+	child_file = (char *)calloc(1, MAX_PATH_LENGTH);
+	strcpy(child_file, file);
+	
+	base_client_id = get_client_id(dest);
+	client_tree = get_client_tree(base_client_id); 
+	
+	fstree_node_t current = client_tree->root;
+	
+	while (position = strchr(child_file, '/')) {
+		*position = 0;
+		current =  tree_contains_next(current,child_file);
+		if (current == NULL)
+			return -1;
+		else 
+			current->status = INSIDE_CHANGED;	 
+		child_file = position+1;
+	}
+	current =  tree_contains_next(current,child_file);
+	if (current != NULL)
+		current->status = DELETED;
+	else
+		return -1;
+	return SUCCESS; 
+			
+	
 }
 
 int add(char* dest, char* file, int client_id) {

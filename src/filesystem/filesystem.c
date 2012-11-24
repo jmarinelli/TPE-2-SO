@@ -26,6 +26,17 @@ bool tree_contains(fstree_node_t node, char * path) {
 	return FALSE;
 }
 
+fstree_node_t tree_contains_next(fstree_node_t node, char * path) {
+	fslist_node_t aux_node = node->children->first;
+	while (aux_node != NULL) {
+		if (!strcmp(aux_node->child->filename, path))
+			return aux_node->child;
+		aux_node = aux_node->next;
+		
+	}
+	return NULL;
+}
+
 void retrieve_tree(char * path , fstree_node_t node) {
 	DIR * dir_path = opendir(path);
 	fstree_node_t new_child;
@@ -36,8 +47,8 @@ void retrieve_tree(char * path , fstree_node_t node) {
 	char new_path[MAX_PATH_LENGTH];
 	do {
 		readdir_r(dir_path, &entry, &result);
-		if (!tree_contains(node, entry.d_name)) {
-			if ( strncmp(entry.d_name, ".", 1) && strncmp(entry.d_name, "..", 2) ) {
+		if ( strncmp(entry.d_name, ".", 1) && strncmp(entry.d_name, "..", 2) ) {
+			if (!tree_contains(node, entry.d_name)) {
 				strcpy( new_path , path );
 				strcat( new_path , "/" );
 				strcat( new_path , entry.d_name );

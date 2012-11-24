@@ -76,8 +76,7 @@ int parse_delete(char * instr, char * cwd, int cid){
 	char file[MAX_NAME_SIZE];
 	if (sscanf(instr, "delete %s", file)){
 		if (file != "") {
-			printf("Delete\n");
-			//return delete(cwd, file, cid);
+			return delete(cwd, file, cid);
 		}
 	}
 	return -1;
