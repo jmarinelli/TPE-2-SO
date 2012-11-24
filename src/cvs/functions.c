@@ -41,6 +41,53 @@ int checkout(char* dest, int client_id)
     return 0;
 }
 
+int update(char* dest, char* file, int client_id){
+	fstree_t client_tree;
+	char * child_file, * position, *command, *containing_folder;
+	
+	child_file = (char *)calloc(1, MAX_PATH_LENGTH);
+	containing_folder = (char *)calloc(1, MAX_PATH_LENGTH);
+	command = (char *)calloc(1, 1024);
+	strcpy(child_file, file);
+	
+	
+	client_tree = repository_tree; 
+	
+	while (position = strchr(child_file, '/')) {
+		*position = 0;
+		current =  find_child_by_path(current,child_file);
+		if (current == NULL)
+			return -1;
+		if (check_existing_file(parent_dest, child_file) == NON_EXISTING_FILE) {
+			strcpy(command,"mkdir ");
+			strcpy(command,parent_dest);
+			strcpy(command,child_file);
+			system(command);
+		}
+		strcat(containing_folder,child_file);
+		strcat(containing_folder,"/");
+		child_file = position+1;
+	}
+	current =  find_child_by_path(current,child_file);
+	
+	if (current != NULL){
+		strcpy(command,"cp -rf ");
+		strcat(command,REPOSITORY_PATH);
+		strcat(command,"/");
+		strcat(command,file);
+		strcat(command," ");
+		strcpy(command,dest);
+		strcat(command,file);
+
+		system(command);
+	}
+	else
+		return -1;
+		
+	return SUCCESS; 
+}
+
+
 int delete(char* dest, char* file, int client_id) {
 	
 	fstree_t client_tree;
@@ -56,14 +103,14 @@ int delete(char* dest, char* file, int client_id) {
 	
 	while (position = strchr(child_file, '/')) {
 		*position = 0;
-		current =  tree_contains_next(current,child_file);
+		current =  find_child_by_path(current,child_file);
 		if (current == NULL)
 			return -1;
 		else 
 			current->status = INSIDE_CHANGED;	 
 		child_file = position+1;
 	}
-	current =  tree_contains_next(current,child_file);
+	current =  find_child_by_path(current,child_file);
 	if (current != NULL)
 		current->status = DELETED;
 	else

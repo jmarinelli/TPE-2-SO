@@ -26,17 +26,6 @@ bool tree_contains(fstree_node_t node, char * path) {
 	return FALSE;
 }
 
-fstree_node_t tree_contains_next(fstree_node_t node, char * path) {
-	fslist_node_t aux_node = node->children->first;
-	while (aux_node != NULL) {
-		if (!strcmp(aux_node->child->filename, path))
-			return aux_node->child;
-		aux_node = aux_node->next;
-		
-	}
-	return NULL;
-}
-
 void retrieve_tree(char * path , fstree_node_t node) {
 	DIR * dir_path = opendir(path);
 	fstree_node_t new_child;
