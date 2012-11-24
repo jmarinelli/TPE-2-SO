@@ -87,6 +87,7 @@ error update_child_from_path(fstree_t tree, string path, bool is_dir) {
 	char * position;
 	char * aux = calloc(1, MAX_PATH_LENGTH);
 	fstree_node_t current_node = tree->root;
+	current_node->status = INSIDE_CHANGED;
 	strcpy(aux, path);
 	
 	while(position = strchr(aux, '/')) {

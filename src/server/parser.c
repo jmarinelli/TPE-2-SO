@@ -92,8 +92,7 @@ int parse_update(char * instr, char * cwd, int cid){
 
 int parse_commit(char * instr, char * cwd, int cid){
 	if (strlen(instr) == strlen("commit")) {
-		printf("Commit\n");
-		//return commit(cwd, cid);
+		return commit(cwd, cid);
 	}
 	return -1;
 }

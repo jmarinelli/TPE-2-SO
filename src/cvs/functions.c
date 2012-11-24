@@ -51,7 +51,7 @@ int update(char* dest, char* file, int client_id){
 	child_file = (char *)calloc(1, MAX_PATH_LENGTH);
 	server_folder = (char *)calloc(1, MAX_PATH_LENGTH);
 	client_folder = (char *)calloc(1, MAX_PATH_LENGTH);
-	command = (char *)calloc(1, 1024);
+	command = (char *)calloc(1, MAX_PATH_LENGTH);
 	strcpy(child_file, file);
 	strcpy(server_folder, REPOSITORY_PATH);
 	strcpy(client_folder, dest);
@@ -168,16 +168,59 @@ int add(char* dest, char* file, int client_id) {
 	return NON_EXISTING_FILE;
 }
 
-//Para despues
-call_getcwd(void)
-{
-    char * cwd;
-    cwd = (string)getcwd(0, 0);
-    if (!cwd) {
-		fprintf (stderr, "getcwd failed\n");
-    } else {
-		printf ("%s\n", cwd);
-		free(cwd);
-    }
-    return;
+int commit_recursive(fstree_node_t node, char * path, char * server_path){
+	fslist_node_t aux_node;
+	fstree_node_t aux_tree_node;
+	string new_path;
+	string new_server_path;
+	string command;
+	switch(node->status) {
+		case INSIDE_CHANGED:
+			aux_node = node->children->first;
+			while (aux_node) {
+				aux_tree_node = aux_node->child;
+				
+				new_path = append_to_path(path, aux_tree_node->filename);
+				new_server_path = append_to_path(server_path, aux_tree_node->filename);
+				
+				commit_recursive(aux_tree_node, new_path, new_server_path);
+			
+				free(new_path);
+				free(new_server_path);
+			
+				aux_node = aux_node->next;	
+			}
+			break;
+		case ADDED:
+			new_server_path = remove_last_appended(server_path);
+			command = build_command(COMMAND_CP, path, new_server_path);
+			system(command);
+			free(new_server_path);
+			break;
+		case UPDATED:
+			command = build_command(COMMAND_RM, server_path, NULL);
+			system(command);
+			free(command);
+			new_server_path = remove_last_appended(server_path);
+			command = build_command(COMMAND_CP, path, new_server_path);
+			system(command);
+			free(command);
+			free(new_server_path);
+			break;
+		case DELETED:
+			command = build_command(COMMAND_RM, server_path, NULL);
+			system(command);
+			free(command);
+			break;
+		default:
+			return;
+	}
+}
+
+int commit(char * path, int client_id) {
+	char destpath[MAX_PATH_LENGTH];
+	int base_client_id = get_client_id(path);
+	fstree_t client_tree = get_client_tree(base_client_id);
+	fstree_node_t current_node = client_tree->root;
+	commit_recursive(current_node, path, REPOSITORY_PATH);
 }

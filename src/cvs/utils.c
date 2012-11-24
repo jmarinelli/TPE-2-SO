@@ -62,3 +62,34 @@ int get_client_id(char* dest) {
 	fscanf(f, "%d", &ans);
 	return ans;
 }
+
+string append_to_path(string path, string appendix) {
+	string new_path = (string)calloc(1, strlen(path) + strlen(appendix) + 2);
+	strcpy(new_path, path);
+	strcat(new_path,"/");
+	strcat(new_path, appendix);
+	return new_path;
+}
+
+string build_command(string command, string origin, string dest) {
+	string com = (string)calloc(1, strlen(command) + strlen(origin) + ((dest) ? strlen(dest) : 0) + SPACE_SIZE);
+	strcpy(com, command);
+	strcat(com, " ");
+	strcat(com,origin);
+	if (dest) {
+		strcat(com, " ");
+		strcat(com, dest);
+	}
+	return com;
+}
+
+string remove_last_appended(string path) {
+	string new_path = (string)calloc(1, strlen(path) + 1);
+	string position = new_path;
+	string last_position = new_path;
+	strcpy(new_path, path);
+	while(position = strchr(position, '/'))
+		last_position = position++;
+	*last_position = 0;
+	return new_path;
+}

@@ -57,3 +57,10 @@ typedef instruction_header * instruction_header_t;
 #define	ADDED 			3
 #define	DELETED 		4
 #define	INSIDE_CHANGED 	5
+
+/* Commands */
+
+#define SPACE_SIZE		10
+
+#define COMMAND_CP		"sudo cp -r"
+#define COMMAND_RM		"sudo rm -r"
