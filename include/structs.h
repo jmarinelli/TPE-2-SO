@@ -31,6 +31,7 @@ typedef struct fstree_node {
 	dlist * versions;		// sin uso APARENTE por ahora
 	unsigned server_inode;
 	unsigned client_inode;
+	int status;
 	char * filename;
 } fstree_node;
 

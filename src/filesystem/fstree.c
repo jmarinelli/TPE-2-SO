@@ -10,7 +10,7 @@ fslist_t new_fslist ( void ) {
 	return ( fslist_t )calloc( sizeof( fslist ) , 1 );
 }
 
-fstree_node_t new_fstree_node ( bool is_directory , string filename , unsigned inode ) {
+fstree_node_t new_fstree_node ( bool is_directory , string filename , unsigned inode) {
 	fstree_node_t node = 
 				( fstree_node_t )calloc( sizeof( fstree_node ) , 1 );
 	if ( node == NULL )
@@ -18,6 +18,7 @@ fstree_node_t new_fstree_node ( bool is_directory , string filename , unsigned i
 	node->filename = calloc( sizeof(char) , strlen(filename) + 1 );
 	memcpy(node->filename, filename, strlen(filename) + 1);
 	node->is_directory = is_directory;
+	node->status = NO_STATE;
 	node->versions = new_dlist(); // (?)
 	node->server_inode = inode;
 	if ( ( node->children = new_fslist() ) == NULL )
@@ -67,11 +68,17 @@ fstree_node_t find_child_by_path(fstree_node_t node, string path) {
 	return NULL;
 }
 
-fstree_node_t add_node_if_not_existing(fstree_node_t node, string path, bool is_dir){
+fstree_node_t add_node_if_not_existing(fstree_node_t node, string path, bool is_dir, int status){
 	fstree_node_t aux_node = find_child_by_path(node, path);
 	if (!aux_node) {
 		aux_node = new_fstree_node(is_dir, path, 0); /* Despues vemos el inodo */
 		add_child(node, aux_node); 
+		aux_node->status = status;
+	} else {
+		if (status == ADDED) 
+			aux_node->status = UPDATED;
+		else
+			aux_node->status = status;
 	}
 	return aux_node;
 }
@@ -84,11 +91,11 @@ error update_child_from_path(fstree_t tree, string path, bool is_dir) {
 	
 	while(position = strchr(aux, '/')) {
 		*position = 0;
-		current_node = add_node_if_not_existing(current_node, aux, TRUE);
+		current_node = add_node_if_not_existing(current_node, aux, TRUE, INSIDE_CHANGED);
 		aux = position+1;
 	}
 	
-	if (!add_node_if_not_existing(current_node, aux, is_dir))
+	if (!add_node_if_not_existing(current_node, aux, is_dir, ADDED))
 			return NO_MEMORY;
 	return SUCCESS;
 }

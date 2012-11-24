@@ -39,13 +39,21 @@ typedef instruction_header * instruction_header_t;
 
 /* Paths */
 
-#define REPOSITORY_PATH "/usr/share/cvs"
-#define SERVER_CHANNEL "/tmp/server"
-#define CVS_TREE_PATH "/tmp/cvs/config/tree"
-#define MAX_PATH_LENGTH	1024
+#define REPOSITORY_PATH 	"/usr/share/cvs"
+#define SERVER_CHANNEL 		"/tmp/server"
+#define CVS_TREE_PATH 		"/tmp/cvs/config/tree"
+#define MAX_PATH_LENGTH		1024
 
 /* System Tree */
 
-#define CVS_ROOT_NAME "root"
-#define IS_FILE 1
-#define IS_DIRECTORY 2
+#define CVS_ROOT_NAME 		"root"
+#define IS_FILE 			1
+#define IS_DIRECTORY 		2
+
+/* Tree status */
+
+#define NO_STATE		1	 
+#define	UPDATED 		2
+#define	ADDED 			3
+#define	DELETED 		4
+#define	INSIDE_CHANGED 	5
