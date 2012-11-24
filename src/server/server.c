@@ -50,7 +50,7 @@ int main() {
 	
 	while(1) {
 		if(read(comChannel, client_header, sizeof(struct instruction_header)) > 0) {
-			instruction_string = calloc(1, client_header->instruction_size + client_header->parameter_size + 2);
+			instruction_string = calloc(1, client_header->instruction_size + client_header->parameter_size + client_header->parameter_size2 + 4);
 			client_working_dir = calloc(1, client_header->current_path_size + 1);
 			parameter = calloc(1, client_header->parameter_size);
 			parameter = calloc(1, client_header->parameter_size2);
