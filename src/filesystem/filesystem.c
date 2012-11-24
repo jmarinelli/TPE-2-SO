@@ -10,7 +10,6 @@ void retrieve_tree(char * path , fstree_node_t node);
 fstree_t filesystem_init();
 
 fstree_t filesystem_init() {
-	
 	 fstree_t tree = new_fstree();
 	 retrieve_tree(REPOSITORY_PATH, tree->root);
 	 return tree;

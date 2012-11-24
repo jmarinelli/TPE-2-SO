@@ -37,7 +37,8 @@ int checkout(char* dest, int client_id)
 		fprintf(f, "%d\n", client_id);
 		fclose(f);
 	}
-	
+	client_send("Checked out", client_id);
+	client_send(END_OF_TRANSMISSION, client_id);
 	free(command);
 	
     return 0;
@@ -111,17 +112,26 @@ int delete(char* dest, char* file, int client_id) {
 	while (position = strchr(child_file, '/')) {
 		*position = 0;
 		current =  find_child_by_path(current,child_file);
-		if (current == NULL)
+		if (current == NULL) {
+			client_send("File not found", client_id);
+			client_send(END_OF_TRANSMISSION, client_id);
 			return -1;
-		else 
+		} else { 
 			current->status = INSIDE_CHANGED;	 
+		}
 		child_file = position+1;
 	}
 	current =  find_child_by_path(current,child_file);
-	if (current != NULL)
+	if (current != NULL) {
 		current->status = DELETED;
-	else
+	} else {
+		client_send("File not found", client_id);
+		client_send(END_OF_TRANSMISSION, client_id);
 		return -1;
+	}
+		
+	client_send("Deleted", client_id);
+	client_send(END_OF_TRANSMISSION, client_id);
 	return SUCCESS; 
 			
 	
@@ -142,8 +152,11 @@ int add(char* dest, char* file, int client_id) {
 	strcpy(child_file, file);
 	while (position = strchr(child_file, '/')) {
 		*position = 0;
-		if (check_existing_file(parent_dest, child_file) == NON_EXISTING_FILE)
+		if (check_existing_file(parent_dest, child_file) == NON_EXISTING_FILE) {
+			client_send("File not found in client", client_id);
+			client_send(END_OF_TRANSMISSION, client_id);
 			return -1;
+		}
 		strcat(parent_dest, "/");
 		strcat(parent_dest, child_file);
 		child_file = position+1;
@@ -153,8 +166,11 @@ int add(char* dest, char* file, int client_id) {
 	
 	if (file_type != NON_EXISTING_FILE){
 		base_client_id = get_client_id(dest);
-		if (base_client_id == -1) 
-			return;
+		if (base_client_id == -1) { 
+			client_send("Not a repository", client_id);
+			client_send(END_OF_TRANSMISSION, client_id);
+			return -1;
+		}
 		client_tree = get_client_tree(base_client_id);
 		if (file_type == IS_DIRECTORY) {
 			update_child_from_path(client_tree, file, TRUE);
@@ -163,8 +179,12 @@ int add(char* dest, char* file, int client_id) {
 		} else {
 			update_child_from_path(client_tree, file, FALSE);
 		}
-		return 0;
+		client_send("Added", client_id);
+		client_send(END_OF_TRANSMISSION, client_id);
+		return SUCCESS;
 	}
+	client_send("File not found in client", client_id);
+	client_send(END_OF_TRANSMISSION, client_id);
 	return NON_EXISTING_FILE;
 }
 
@@ -223,6 +243,11 @@ int commit(char * path, int client_id) {
 	fstree_t client_tree = get_client_tree(base_client_id);
 	fstree_node_t current_node = client_tree->root;
 	commit_recursive(current_node, path, REPOSITORY_PATH);
+	/* Faltaria liberar todo el arbol anterior */
+	repository_tree = (fstree_t)new_fstree();
+	retrieve_tree(REPOSITORY_PATH, repository_tree->root);
+	client_send("Changes commited", client_id);
+	client_send(END_OF_TRANSMISSION, client_id);
 }
 
 string read_line(FILE * f) {
@@ -231,40 +256,62 @@ string read_line(FILE * f) {
 	char c;
 	do {
 		c = fgetc(f);
-		if (c != EOF && c != '\n')
-			ans[i++] = c;
+		ans[i++] = c;
 	} while(c != '\n' && c != EOF);
-	if (i == 0 && c == EOF)
+	if (i == 1 && c == EOF)
 		return NULL;
-	ans[i] = 0;
+	ans[i-1] = 0;
 	return ans;
 }
 
-int diff_f(char * local, char * parent_path, char * filename) {
+int diff_f(char * local, char * parent_path, char * filename, int client_id) {
 	char * server = (char *)calloc(MAX_PATH_LENGTH, sizeof(char));
 	string client_line, server_line;
-	bool loop_server = TRUE, loop_client = TRUE;
+	int i = 1;
+	char response[MAX_RESPONSE_SIZE];
+	bool loop_server = TRUE, loop_client = TRUE, looping_extra = FALSE;
 	strcpy(server, parent_path);
 	strcat(server, "/");
 	strcat(server, filename);
 	FILE * local_file = fopen(local, "r");
 	FILE * server_file = fopen(server, "r");
+	sprintf(response, "Differences in file %s\n", local); 
+	client_send(response, client_id);
 	do {
 		if (loop_client)
 			client_line = read_line(local_file);
 		if (loop_server)
 			server_line = read_line(server_file);
 		if (client_line && server_line) {
-			if (strcmp(server_line, client_line))
-				printf("Diferencia:\nServer: %s\nClient: %s\n\n", server_line, client_line); 
+			if (strcmp(server_line, client_line)) {
+				sprintf(response, "Difference, line %d:\nServer: %s\nClient: %s\n", 
+														i, server_line, client_line); 
+				client_send(response, client_id);
+			}
 		} else if (!server_line) {
-			if (client_line)
-				printf("%s\n", client_line);
+			if (!looping_extra) {
+				sprintf(response, "Extra lines in client file:"); 
+				client_send(response, client_id);
+				looping_extra = TRUE;
+			}
+			if (client_line) {
+				sprintf(response, "%s", client_line); 
+				client_send(response, client_id);
+			}
 		} else if (!client_line) {
-			if (server_line)
-				printf("%s\n", server_line);
+			if (!looping_extra) {
+				sprintf(response, "Extra lines in server file:"); 
+				client_send(response, client_id);
+				looping_extra = TRUE;
+			}
+			if (server_line) {
+				sprintf(response, "%s", server_line); 
+				client_send(response, client_id);
+			}
 		}
+		i++;
 	} while(server_line || client_line);
+	client_send("\n", client_id);
 	fclose(local_file);
 	fclose(server_file);
 	free(server);
@@ -276,6 +323,7 @@ int diff_r(char * path, char * server_path, fstree_node_t node, int client_id) {
 	DIR * dir_path = opendir(path);
 	fstree_node_t current_node;
 	bool is_dir = FALSE;
+	char response[MAX_RESPONSE_SIZE];
 	struct dirent entry;
 	struct dirent * result;
 	char * new_path, * last_call, * new_server_path;
@@ -287,7 +335,7 @@ int diff_r(char * path, char * server_path, fstree_node_t node, int client_id) {
 	strcat(new_server_path, node->filename);
 	do {
 		readdir_r(dir_path, &entry, &result);
-		if ( strncmp(entry.d_name, ".", 1) && strncmp(entry.d_name, "..", 2) && strcmp(entry.d_name, last_call) ){
+		if ( strncmp(entry.d_name, ".", 1) && strncmp(entry.d_name, "..", 2) && strcmp(entry.d_name, last_call) && !strchr(entry.d_name, '~')){
 			strcpy(last_call,entry.d_name);
 			strcpy( new_path , path );
 			strcat( new_path , "/" );
@@ -296,15 +344,21 @@ int diff_r(char * path, char * server_path, fstree_node_t node, int client_id) {
 				is_dir = TRUE;
 			}
 			current_node = find_child_by_path(node, entry.d_name);
-			if (current_node == NULL)
-				printf("no encontro: %s\n", entry.d_name);
-			else if ( is_dir ) 
-				diff_r( new_path , new_server_path, current_node , client_id );
-			else 
-				diff_f(new_path, new_server_path, current_node->filename);
+			if (current_node == NULL) {
+				sprintf(response, "File or Folder %s/%s not found in repository\n"
+							, path, entry.d_name);
+				client_send(response, client_id);
+			}
+			else if ( is_dir ) { 
+				diff_r( new_path, new_server_path, current_node, client_id );
+			} else {
+				diff_f(new_path, new_server_path, current_node->filename, client_id);
+			}
 			is_dir = FALSE;
 		}
 	} while ( result != NULL );
+	if (!strcmp(node->filename, CVS_ROOT_NAME))
+		client_send(END_OF_TRANSMISSION, client_id);
 	free(new_path);
 	free(new_server_path);
 	free(last_call);
