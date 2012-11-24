@@ -25,7 +25,7 @@ string get_string_from_pid(int);
 int main() {
 	
 	instruction_header_t client_header = calloc(1, sizeof(instruction_header));
-	string instruction_string, client_working_dir, parameter;
+	string instruction_string, client_working_dir, parameter, parameter2;
 	char response_string[MAX_RESPONSE_SIZE];
 	
 	signal(SIGINT, (__sighandler_t)server_close);
@@ -53,7 +53,8 @@ int main() {
 			instruction_string = calloc(1, client_header->instruction_size + client_header->parameter_size + 2);
 			client_working_dir = calloc(1, client_header->current_path_size + 1);
 			parameter = calloc(1, client_header->parameter_size);
-
+			parameter = calloc(1, client_header->parameter_size2);
+			
 			while(read(comChannel, instruction_string, client_header->instruction_size) == 0)
 				sleep(1);
 			while(read(comChannel, client_working_dir, client_header->current_path_size) == 0)
@@ -66,7 +67,13 @@ int main() {
 				strcat(instruction_string, parameter);
 				instruction_string[client_header->instruction_size + client_header->parameter_size + 1] = 0;
 			}
-			
+			if (client_header->parameter_size2 > 0) {
+				while(read(comChannel, parameter2, client_header->parameter_size2) == 0)
+					sleep(1);
+				strcat(instruction_string, " ");
+				strcat(instruction_string, parameter2);
+				instruction_string[client_header->instruction_size + client_header->parameter_size + client_header->parameter_size2 + 2] = 0;
+			}
 			printf("Received instruction from client: %d, instruction: %s, working dir %s\n",
 				client_header->client_id, instruction_string, client_working_dir);
 				

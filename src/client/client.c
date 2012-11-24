@@ -19,7 +19,7 @@ int main(int argc, int ** argv) {
 	
 	bool loop = TRUE;
 	
-	string instruction, parameter, response, string_pid;
+	string instruction, parameter, parameter2, response, string_pid;
 	instruction_header client_header;
 	
 	if (argc < 2) {
@@ -44,6 +44,14 @@ int main(int argc, int ** argv) {
 		client_header.parameter_size = strlen(parameter);
 	}
 	
+	if (argc < 4) {
+		client_header.parameter_size2 = 0;
+		parameter2 = "";
+	} else {
+		parameter = (string)argv[3];
+		client_header.parameter_size2 = strlen(parameter2);
+	}
+	
 	
 	printf("Sending instruction size %d, from client %d\n", client_header.instruction_size, client_header.client_id);
 			
@@ -51,6 +59,7 @@ int main(int argc, int ** argv) {
 	write(comChannel, instruction, client_header.instruction_size);
 	write(comChannel, getcwd(0,0), client_header.current_path_size);
 	write(comChannel, parameter, client_header.parameter_size);
+	write(comChannel, parameter2, client_header.parameter_size2);
 	
 	close(comChannel);
 	

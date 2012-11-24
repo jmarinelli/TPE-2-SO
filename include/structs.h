@@ -46,6 +46,7 @@ typedef struct instruction_header {
 	unsigned instruction_size;
 	unsigned current_path_size;
 	unsigned parameter_size;
+	unsigned parameter_size2;
 	int client_id;
 } instruction_header;
 
