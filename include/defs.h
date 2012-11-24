@@ -24,7 +24,7 @@ typedef instruction_header * instruction_header_t;
 
 #define CLEAN_LINE int i;for(i=0;i<MAX_INSTRUCTION_LENGTH;i++)line[i]=0;
 #define CANT_INSTRUCTIONS 	7
-#define MAX_NAME_SIZE 		200
+#define MAX_NAME_SIZE 		1024
 #define CVS_LENGTH 			4
 #define TRUE				1
 #define FALSE				!TRUE
@@ -69,8 +69,10 @@ typedef instruction_header * instruction_header_t;
 #define COMMAND_CP		"sudo cp -r"
 #define COMMAND_CP_2	"cp -r"
 #define COMMAND_RM		"sudo rm -r"
+#define COMMAND_MKDIR	"sudo mkdir"
 
 /* Server-Client Protocol */
 
 #define MAX_RESPONSE_SIZE 		2048
 #define END_OF_TRANSMISSION 	"end"
+

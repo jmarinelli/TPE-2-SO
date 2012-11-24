@@ -187,10 +187,11 @@ int add(char* dest, char* file, int client_id) {
 		}
 		client_send(END_OF_TRANSMISSION, client_id);
 		return SUCCESS;
+	} else {
+		client_send("File not found in client", client_id);
+		client_send(END_OF_TRANSMISSION, client_id);
+		return NON_EXISTING_FILE;
 	}
-	client_send("File not found in client", client_id);
-	client_send(END_OF_TRANSMISSION, client_id);
-	return NON_EXISTING_FILE;
 }
 
 int commit_recursive(fstree_node_t node, string path, string server_path, string old_path){
@@ -393,7 +394,8 @@ int versions(char* dest, char* file, int client_id) {
 	while (position = strchr(child_file, '/')) {
 		*position = 0;
 		if (check_existing_file(parent_dest, child_file) == NON_EXISTING_FILE) {
-			client_send("No old versions found server", client_id);
+			sprintf(response, "No old versions found in server for file %s", child_file);
+			client_send(response, client_id);
 			client_send(END_OF_TRANSMISSION, client_id);
 			return -1;
 		}
@@ -403,6 +405,15 @@ int versions(char* dest, char* file, int client_id) {
 	}	
 	
 	version = get_max_version(child_file, parent_dest);
+	
+	if (!version) {
+		sprintf(response, "No old versions found in server for file %s", child_file);
+		client_send(response, client_id);
+		client_send(END_OF_TRANSMISSION, client_id);
+		return -1;
+	}
+	
+	
 	sprintf(response, "Versions for file %s found, numbers %d to %d\nType 'cvs backup' to revert changes to older versions.", 
 			child_file, 1, version);
 	client_send(response, client_id);

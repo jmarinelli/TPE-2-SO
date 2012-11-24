@@ -50,7 +50,7 @@ int main() {
 	
 	while(1) {
 		if(read(comChannel, client_header, sizeof(struct instruction_header)) > 0) {
-			instruction_string = calloc(1, client_header->instruction_size);
+			instruction_string = calloc(1, client_header->instruction_size + client_header->parameter_size + 2);
 			client_working_dir = calloc(1, client_header->current_path_size + 1);
 			parameter = calloc(1, client_header->parameter_size);
 
@@ -64,6 +64,7 @@ int main() {
 					sleep(1);
 				strcat(instruction_string, " ");
 				strcat(instruction_string, parameter);
+				instruction_string[client_header->instruction_size + client_header->parameter_size + 1] = 0;
 			}
 			
 			printf("Received instruction from client: %d, instruction: %s, working dir %s\n",

@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "../../include/structs.h"
 #include "../../include/defs.h"
@@ -33,7 +36,37 @@ void almacenarVersionesViejasEnLaCarpetaOldParaDespuesLeerlasYMostrarselasAlUsua
 	int filename_size = strlen(filename);
 	char new_file[MAX_PATH_LENGTH];
 	string command;
-	string new_path;
+	string file_path = calloc(1, MAX_PATH_LENGTH);
+	string mkdir_path = calloc(1, MAX_PATH_LENGTH);
+	string position, new_path;
+	strcpy(mkdir_path, OLD_REPO_PATH);
+	position = strstr(old_path, "old");
+	position = strchr(position, '/');
+	if (position) {
+		strcpy(file_path, position+1);
+		while(position = strchr(file_path, '/')) {
+			*position = 0;
+			if (check_existing_file(mkdir_path, file_path) == NON_EXISTING_FILE) {
+				strcat(mkdir_path, "/");
+				strcat(mkdir_path, file_path);
+				command = build_command(COMMAND_MKDIR, mkdir_path, NULL);
+				system(command);
+			} else {
+				strcat(mkdir_path, "/");
+				strcat(mkdir_path, file_path);
+			}
+			file_path = position + 1;
+		}
+		if (check_existing_file(mkdir_path, file_path) == NON_EXISTING_FILE) {
+			strcat(mkdir_path, "/");
+			strcat(mkdir_path, file_path);
+			command = build_command(COMMAND_MKDIR, mkdir_path, NULL);
+			system(command);
+		} else {
+			strcat(mkdir_path, "/");
+			strcat(mkdir_path, file_path);
+		}
+	}
 	int max_version = get_max_version(filename, old_path);
 	sprintf(new_file, "%s-%d", filename, max_version+1);
 	new_path = append_to_path(old_path, new_file);
