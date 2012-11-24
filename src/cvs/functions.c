@@ -46,6 +46,7 @@ int add(char* dest, char* file, int client_id) {
 	char * parent_dest, * child_file, * position; 
 	char abs_path[MAX_PATH_LENGTH];
 	strcpy(abs_path, dest);
+	strcat(abs_path, "/");
 	strcat(abs_path, file);
 	int base_client_id, file_type;
 	child_file = (char *)calloc(1, MAX_PATH_LENGTH);
