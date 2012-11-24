@@ -85,7 +85,7 @@ int parse_delete(char * instr, char * cwd, int cid){
 int parse_update(char * instr, char * cwd, int cid){
 	if (strlen(instr) == strlen("update")) {
 		printf("Update\n");
-		//return update(cwd, cid);
+		return update(cwd, cid);
 	}
 	return -1;
 }
@@ -99,8 +99,7 @@ int parse_commit(char * instr, char * cwd, int cid){
 
 int parse_diff(char * instr, char * cwd, int cid){
 	if (strlen(instr) == strlen("diff")) {
-		printf("Diff\n");
-		//return diff(cwd, cid);
+		return diff(cwd, cid);
 	}
 	return -1;
 }

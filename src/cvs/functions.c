@@ -223,3 +223,8 @@ int commit(char * path, int client_id) {
 	fstree_node_t current_node = client_tree->root;
 	commit_recursive(current_node, path, REPOSITORY_PATH);
 }
+
+int diff(char * path, int client_id) {
+	fstree_node_t current_node = client_tree->root;
+	
+}
