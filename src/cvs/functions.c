@@ -7,6 +7,7 @@
 #include "../../include/structs.h"
 #include "../../include/defs.h"
 #include "../../include/cvs/utils.h"
+#include "../../include/filesystem/fstree.h"
 
 int checkout(char* dest, int client_id)
 {
@@ -41,7 +42,11 @@ int checkout(char* dest, int client_id)
 
 int add(char* dest, char* file, int client_id) {
 	fstree_t client_tree;
+	fstree_node_t new_node;
 	char * parent_dest, * child_file, * position; 
+	char abs_path[MAX_PATH_LENGTH];
+	strcpy(abs_path, dest);
+	strcat(abs_path, file);
 	int base_client_id, file_type;
 	child_file = (char *)calloc(1, MAX_PATH_LENGTH);
 	parent_dest = (char *)calloc(1, MAX_PATH_LENGTH);
@@ -61,9 +66,15 @@ int add(char* dest, char* file, int client_id) {
 	if (file_type != NON_EXISTING_FILE){
 		base_client_id = get_client_id(dest);
 		if (base_client_id == -1) 
-			return;	
-		client_tree = get_client_tree(base_client_id); 
-		update_child_from_path(client_tree, file, file_type);
+			return;
+		client_tree = get_client_tree(base_client_id);
+		if (file_type == IS_DIRECTORY) {
+			update_child_from_path(client_tree, file, TRUE);
+			new_node = find_child_by_path(client_tree->root, child_file);
+			retrieve_tree(abs_path, new_node);
+		} else {
+			update_child_from_path(client_tree, file, FALSE);
+		}
 		return 0;
 	}
 	return NON_EXISTING_FILE;

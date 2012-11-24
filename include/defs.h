@@ -27,7 +27,7 @@ typedef instruction_header * instruction_header_t;
 #define MAX_NAME_SIZE 		200
 #define CVS_LENGTH 			4
 #define TRUE				1
-#define FALSE				!TRUE;
+#define FALSE				!TRUE
 
 /* Errors */
 

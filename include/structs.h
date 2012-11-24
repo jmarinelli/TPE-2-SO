@@ -42,9 +42,9 @@ typedef struct fstree {
 /* IPC Headers */
 
 typedef struct instruction_header {
-	int instruction_size;
-	int current_path_size;
-	int parameter_size;
+	unsigned instruction_size;
+	unsigned current_path_size;
+	unsigned parameter_size;
 	int client_id;
 } instruction_header;
 
