@@ -3,6 +3,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <errno.h>
 
 #include "../../include/structs.h"
@@ -224,7 +225,96 @@ int commit(char * path, int client_id) {
 	commit_recursive(current_node, path, REPOSITORY_PATH);
 }
 
+string read_line(FILE * f) {
+	string ans = calloc(1, MAX_PATH_LENGTH);;
+	int i = 0;
+	char c;
+	do {
+		c = fgetc(f);
+		if (c != EOF && c != '\n')
+			ans[i++] = c;
+	} while(c != '\n' && c != EOF);
+	if (i == 0 && c == EOF)
+		return NULL;
+	ans[i] = 0;
+	return ans;
+}
+
+int diff_f(char * local, char * parent_path, char * filename) {
+	char * server = (char *)calloc(MAX_PATH_LENGTH, sizeof(char));
+	string client_line, server_line;
+	bool loop_server = TRUE, loop_client = TRUE;
+	strcpy(server, parent_path);
+	strcat(server, "/");
+	strcat(server, filename);
+	FILE * local_file = fopen(local, "r");
+	FILE * server_file = fopen(server, "r");
+	do {
+		if (loop_client)
+			client_line = read_line(local_file);
+		if (loop_server)
+			server_line = read_line(server_file);
+		if (client_line && server_line) {
+			if (strcmp(server_line, client_line))
+				printf("Diferencia:\nServer: %s\nClient: %s\n\n", server_line, client_line); 
+		} else if (!server_line) {
+			if (client_line)
+				printf("%s\n", client_line);
+		} else if (!client_line) {
+			if (server_line)
+				printf("%s\n", server_line);
+		}
+	} while(server_line || client_line);
+	printf("asdads\n");
+	fclose(local_file);
+	fclose(server_file);
+	free(server);
+}
+
+int diff_r(char * path, char * server_path, fstree_node_t node, int client_id) {
+	if (node == NULL)
+		return 0;
+	DIR * dir_path = opendir(path);
+	fstree_node_t current_node;
+	bool is_dir = FALSE;
+	struct dirent entry;
+	struct dirent * result;
+	char * new_path, * last_call, * new_server_path;
+	new_path = (char *) calloc(MAX_PATH_LENGTH, sizeof(char));
+	last_call = (char *) calloc(MAX_PATH_LENGTH, sizeof(char));
+	new_server_path = (char *) calloc(MAX_PATH_LENGTH, sizeof(char));
+	strcpy(new_server_path, server_path);
+	strcat(new_server_path, "/");
+	strcat(new_server_path, node->filename);
+	do {
+		readdir_r(dir_path, &entry, &result);
+		if ( strncmp(entry.d_name, ".", 1) && strncmp(entry.d_name, "..", 2) && strcmp(entry.d_name, last_call) ){
+			strcpy(last_call,entry.d_name);
+			strcpy( new_path , path );
+			strcat( new_path , "/" );
+			strcat( new_path , entry.d_name );
+			if( entry.d_type == DT_DIR ) {
+				is_dir = TRUE;
+			}
+			current_node = find_child_by_path(node, entry.d_name);
+			if (current_node == NULL) {
+				printf("no encontro: %s\n", entry.d_name);
+			} else if ( is_dir ) 
+				diff_r( new_path , new_server_path, current_node , client_id );
+			else {
+				//comparar
+				printf("%s\n", entry.d_name);
+				diff_f(new_path, new_server_path, current_node->filename);
+			}
+			is_dir = FALSE;
+		}
+	} while ( result != NULL );
+	free(new_path);
+	free(new_server_path);
+	free(last_call);
+}
+
 int diff(char * path, int client_id) {
-	fstree_node_t current_node = client_tree->root;
-	
+	fstree_node_t current_node = repository_tree->root;
+	return diff_r(path, "/usr/share", current_node, client_id);
 }
