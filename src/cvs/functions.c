@@ -265,7 +265,6 @@ int diff_f(char * local, char * parent_path, char * filename) {
 				printf("%s\n", server_line);
 		}
 	} while(server_line || client_line);
-	printf("asdads\n");
 	fclose(local_file);
 	fclose(server_file);
 	free(server);
@@ -297,15 +296,12 @@ int diff_r(char * path, char * server_path, fstree_node_t node, int client_id) {
 				is_dir = TRUE;
 			}
 			current_node = find_child_by_path(node, entry.d_name);
-			if (current_node == NULL) {
+			if (current_node == NULL)
 				printf("no encontro: %s\n", entry.d_name);
-			} else if ( is_dir ) 
+			else if ( is_dir ) 
 				diff_r( new_path , new_server_path, current_node , client_id );
-			else {
-				//comparar
-				printf("%s\n", entry.d_name);
+			else 
 				diff_f(new_path, new_server_path, current_node->filename);
-			}
 			is_dir = FALSE;
 		}
 	} while ( result != NULL );
