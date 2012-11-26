@@ -46,18 +46,19 @@ int checkout(char* dest, int client_id)
 
 int update(char* dest, char* file, int client_id){
 	fstree_t client_tree;
+	client_tree = repository_tree; 
 	fstree_node_t current = client_tree->root;
 	char * child_file, * position, *command, *server_folder, *client_folder;
 	
-	child_file = (char *)calloc(1, MAX_PATH_LENGTH);
-	server_folder = (char *)calloc(1, MAX_PATH_LENGTH);
-	client_folder = (char *)calloc(1, MAX_PATH_LENGTH);
-	command = (char *)calloc(1, MAX_PATH_LENGTH);
+	child_file = (char *)calloc(MAX_PATH_LENGTH, sizeof(char));
+	server_folder = (char *)calloc(MAX_PATH_LENGTH, sizeof(char));
+	client_folder = (char *)calloc(MAX_PATH_LENGTH, sizeof(char));
+	command = (char *)calloc(MAX_PATH_LENGTH, sizeof(char));
 	strcpy(child_file, file);
 	strcpy(server_folder, REPOSITORY_PATH);
 	strcpy(client_folder, dest);
 	
-	client_tree = repository_tree; 
+
 	
 	while (position = strchr(child_file, '/')) {
 		*position = 0;
@@ -66,8 +67,10 @@ int update(char* dest, char* file, int client_id){
 			return -1;
 		if (check_existing_file(client_folder, child_file) == NON_EXISTING_FILE) {
 			strcpy(command,"mkdir ");
-			strcpy(command,client_folder); // No sera strcat?
-			strcpy(command,child_file);
+			strcat(command,client_folder);
+			strcat(command,"/");
+			strcat(command,child_file);
+	
 			system(command);
 		}
 		strcat(client_folder,"/");
@@ -82,16 +85,18 @@ int update(char* dest, char* file, int client_id){
 		strcpy(command,"cp -rf ");
 		strcat(command,server_folder);
 		strcat(command,"/");
-		strcat(command,file);
+		strcat(command,child_file);
 		strcat(command," ");
-		strcpy(command,client_folder);
-		strcat(command,file);
-
+		strcat(command,client_folder);
 		system(command);
 	}
-	else
+	else {
+		client_send("File not found in server", client_id);
+		client_send(END_OF_TRANSMISSION, client_id);
 		return -1;
-		
+	}
+	client_send("Updated", client_id);
+	client_send(END_OF_TRANSMISSION, client_id);	
 	return SUCCESS; 
 }
 
