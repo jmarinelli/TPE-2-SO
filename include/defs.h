@@ -42,6 +42,9 @@ typedef instruction_header * instruction_header_t;
 #define REPOSITORY_PATH 	"/usr/share/cvs"
 #define SERVER_CHANNEL 		"/tmp/server"
 #define CVS_TREE_PATH 		"/tmp/cvs/config/tree"
+#define TEMP_PATH			"/tmp"
+
+#define TEMP_LENGTH			4
 #define MAX_PATH_LENGTH		1024
 
 /* System Tree */
@@ -65,3 +68,8 @@ typedef instruction_header * instruction_header_t;
 #define COMMAND_CP		"sudo cp -r"
 #define COMMAND_CP_2	"cp -r"
 #define COMMAND_RM		"sudo rm -r"
+
+/* Server-Client Protocol */
+
+#define MAX_RESPONSE_SIZE 		2048
+#define END_OF_TRANSMISSION 	"end"

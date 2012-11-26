@@ -4,17 +4,22 @@
 
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #include "../../include/structs.h"
 #include "../../include/defs.h"
+#include "../../include/server/server.h"
 
-string pid_to_string(int);
+string get_string_from_pid(int);
 
 int main(int argc, int ** argv) {
 	
-	int comChannel;
+	int comChannel, respChannel;
+	int response_size;
 	
-	string instruction, parameter;
+	bool loop = TRUE;
+	
+	string instruction, parameter, response, string_pid;
 	instruction_header client_header;
 	
 	if (argc < 2) {
@@ -46,14 +51,44 @@ int main(int argc, int ** argv) {
 	write(comChannel, instruction, client_header.instruction_size);
 	write(comChannel, getcwd(0,0), client_header.current_path_size);
 	write(comChannel, parameter, client_header.parameter_size);
-			
-	/* printf("Client pid: %s Read pid %d\n", pid_to_string(getpid()), getpid()); */
 	
+	close(comChannel);
+	
+	string_pid = get_string_from_pid(getpid());
+	
+	if ( mkfifo(string_pid, 0666) == -1 ) {
+		if (errno != EEXIST) {
+			/* fatal("Error mkfifo");
+			 * 
+			 * TODO: Make function fatal in special error file 
+			 * 
+			 * */
+		 }
+	}
+		
+	respChannel = open(string_pid, O_RDONLY);
+	
+	do {
+		if (read(respChannel, &response_size, sizeof(int)) > 0) {
+			response = calloc(1, response_size);
+			while(read(respChannel, response, response_size) <= 0)
+				sleep(1);
+			loop = strcmp(END_OF_TRANSMISSION, response);
+			if (loop)
+				printf("%s\n", response);
+			free(response);
+		} else {
+			sleep(1);
+		}
+	} while (loop);
+	
+	close(respChannel);
+	unlink(string_pid);
 	
 	return 0;
 }
 
-string pid_to_string (int pid) {
+/* string pid_to_string (int pid) {
 	
 	string ans;
 	int aux = pid, cont = 0, i = 0;
@@ -73,4 +108,30 @@ string pid_to_string (int pid) {
 	
 	return ans;
 	
+}*/
+
+string get_string_from_pid (int pid)
+{
+	int aux = pid, cont = 0;
+	string file;
+
+	while(aux > 0)
+	{
+		aux /= 10;
+		cont++;
+	}
+	
+	cont += (TEMP_LENGTH);
+
+	file = calloc(cont + TEMP_LENGTH + 2, sizeof(char));
+	strcpy(file, TEMP_PATH);
+	strcat(file, "/");
+
+	while(pid > 0)
+	{
+		file[cont--] = pid % 10 + '0';
+		pid /= 10;
+	}
+
+	return file;
 }
