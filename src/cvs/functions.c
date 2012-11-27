@@ -30,11 +30,9 @@ int checkout(char* dest, int client_id)
 	}
     
     new_dest = remove_last_appended(dest);
-    command = build_command(COMMAND_CP_2, REPOSITORY_PATH, new_dest);
-    system(command);
+    run_command(COMMAND_CP_2, REPOSITORY_PATH, new_dest);
     
-    strcpy(command, dest);
-    strcat(command, "/.cvs");
+    command = append_to_path(dest, "./cvs");
         
     if ((f = fopen(command, "w")) != NULL) {
 		fprintf(f, "%d\n", client_id);
