@@ -432,3 +432,50 @@ int backup(char * dest, char * file, int client_id, int version) {
 	client_send(END_OF_TRANSMISSION, client_id);
 	return SUCCESS;
 }
+
+int checkdir(char * dest, char * dir, int client_id) {
+	string repo_dir, old_dir, file_path;
+	string position;
+	int max_version;
+	int version;
+	char response[MAX_PATH_LENGTH];
+	char filename[MAX_NAME_SIZE];
+	DIR * repo, * old;
+	struct dirent entry;
+	struct dirent * result;
+	
+	repo_dir = append_to_path(REPOSITORY_PATH, dir);
+	old_dir = append_to_path(OLD_REPO_PATH, dir);
+	
+	if (!(repo = opendir(repo_dir))) {
+		client_send("Directory not found in server", client_id);
+		client_send(END_OF_TRANSMISSION, client_id);
+		return NO_DIRECTORY;
+	} else if (!(old = opendir(old_dir))) {
+		client_send("No deleted files found", client_id);
+		client_send(END_OF_TRANSMISSION, client_id);
+		return NO_VERSIONS;
+	}
+	
+	do {
+		readdir_r(old, &entry, &result);
+		if ( strncmp(entry.d_name, ".", 1) && strncmp(entry.d_name, "..", 2)){
+			strcpy(filename, entry.d_name);
+			position = strchr(filename, '-');
+			if (position) {
+				*position = 0;
+				sscanf(position+1, "%d", &version);
+				file_path = append_to_path(dir, filename);
+				if (!get_node_from_path(repository_tree, file_path)) {
+					max_version = get_max_version(filename, old_dir);
+					if (max_version == version){
+						sprintf(response, "Deleted file versions found\nFile: %s\nVersions: %d to %d\nType 'cvs backup %s' to restore.", file_path, 1, max_version, file_path);
+						client_send(response, client_id);
+					}
+				}
+				free(file_path);
+			}
+		}
+	} while ( result != NULL );
+	client_send(END_OF_TRANSMISSION, client_id);
+}

@@ -23,7 +23,7 @@ typedef instruction_header * instruction_header_t;
 /* Parser */
 
 #define CLEAN_LINE int i;for(i=0;i<MAX_INSTRUCTION_LENGTH;i++)line[i]=0;
-#define CANT_INSTRUCTIONS 	9
+#define CANT_INSTRUCTIONS 	10
 #define MAX_NAME_SIZE 		1024
 #define CVS_LENGTH 			4
 #define TRUE				1
@@ -36,6 +36,7 @@ typedef instruction_header * instruction_header_t;
 #define NO_DIRECTORY		-2
 #define NO_MEMORY			-3
 #define NON_EXISTING_FILE	-4
+#define NO_VERSIONS			-5
 
 /* Paths */
 
