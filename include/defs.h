@@ -23,7 +23,7 @@ typedef instruction_header * instruction_header_t;
 /* Parser */
 
 #define CLEAN_LINE int i;for(i=0;i<MAX_INSTRUCTION_LENGTH;i++)line[i]=0;
-#define CANT_INSTRUCTIONS 	7
+#define CANT_INSTRUCTIONS 	8
 #define MAX_NAME_SIZE 		1024
 #define CVS_LENGTH 			4
 #define TRUE				1

@@ -19,6 +19,7 @@ int parse_update(char * instr, char * cwd, int cid);
 int parse_commit(char * instr, char * cwd, int cid);
 int parse_diff(char * instr, char * cwd, int cid);
 int parse_versions(char * instr, char * cwd, int cid);
+int parse_rename(char * instr, char * cwd, int cid);
 
 void parser_init() {
 	set_lists();
@@ -32,6 +33,7 @@ void set_lists(){
 	command_list[4] = "commit";
 	command_list[5] = "diff";
 	command_list[6] = "versions";
+	command_list[7] = "rename";
 
 	functions_list[0] = &parse_checkout;
 	functions_list[1] = &parse_add;
@@ -40,12 +42,13 @@ void set_lists(){
 	functions_list[4] = &parse_commit;
 	functions_list[5] = &parse_diff;
 	functions_list[6] = &parse_versions;
+	functions_list[7] = &parse_rename;
 }
 
 int parse_string(char * instr, char * cwd, int cid){
 
 	int i, cmd_length, ret;
-
+	
 	if (instr[0] != 0){
 		for(i = 0; i < CANT_INSTRUCTIONS; i++){
 			cmd_length = strlen(command_list[i]);
@@ -87,9 +90,8 @@ int parse_delete(char * instr, char * cwd, int cid){
 
 int parse_update(char * instr, char * cwd, int cid){
 	char file[MAX_NAME_SIZE];
-	if (sscanf(instr, "update %s", file)){
+	if (sscanf(instr, "update %s", file))
 		return update(cwd,file,cid);
-	}
 	return -1;
 }
 
@@ -107,11 +109,17 @@ int parse_diff(char * instr, char * cwd, int cid){
 	return -1;
 }
 
-
 int parse_versions(char * instr, char * cwd, int cid){
 	char file[MAX_NAME_SIZE];
-	if (sscanf(instr, "versions %s", file)){
+	if (sscanf(instr, "versions %s", file))
 		return versions(cwd,file,cid);
+	return -1;
+}
+
+int parse_rename(char * instr, char * cwd, int cid){
+	char file[MAX_NAME_SIZE], new_name[MAX_NAME_SIZE];
+	if (sscanf(instr, "rename %s %s", file, new_name)){
+		return rename_file(cwd,file,new_name,cid);
 	}
 	return -1;
 }

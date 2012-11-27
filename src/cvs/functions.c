@@ -101,6 +101,14 @@ int update(char* dest, char* file, int client_id){
 	return SUCCESS; 
 }
 
+int rename_file(char* dest, char* file, char * new_name, int client_id){
+	char * local_old_path, * server_old_path, * local_new_path, * server_new_path;
+	local_old_path = append_to_path(dest, file);
+	local_new_path = append_to_path(dest, new_name);
+	server_old_path = append_to_path(REPOSITORY_PATH, file);
+	server_new_path = append_to_path(REPOSITORY_PATH, new_name);
+	rename(local_old_path, local_new_path);
+}
 
 int delete(char* dest, char* file, int client_id) {
 	
