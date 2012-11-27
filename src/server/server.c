@@ -38,11 +38,8 @@ int main() {
 		
 	if ( mkfifo(SERVER_CHANNEL, 0666) == -1 ) {
 		if (errno != EEXIST) {
-			/* fatal("Error mkfifo");
-			 * 
-			 * TODO: Make function fatal in special error file 
-			 * 
-			 * */
+			printf("Couldn't make server fifo\n");
+			return NO_MEMORY;
 		 }
 	}
 	

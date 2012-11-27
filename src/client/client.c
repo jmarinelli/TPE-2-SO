@@ -24,12 +24,13 @@ int main(int argc, int ** argv) {
 	
 	if (argc < 2) {
 		printf("Too few arguments\n");
-		/* fatal("Too few arguments") */
 		return 0;
 	}
 	
-	if ((comChannel = open(SERVER_CHANNEL, O_WRONLY)) < 0) {}
-		// fatal("Server channel closed");
+	if ((comChannel = open(SERVER_CHANNEL, O_WRONLY)) < 0) {
+		printf("Server channel is closed\n");
+		return NON_EXISTING_FILE;
+	}
 		
 	instruction = (string)argv[1];
 	client_header.client_id = getpid();
@@ -67,11 +68,8 @@ int main(int argc, int ** argv) {
 	
 	if ( mkfifo(string_pid, 0666) == -1 ) {
 		if (errno != EEXIST) {
-			/* fatal("Error mkfifo");
-			 * 
-			 * TODO: Make function fatal in special error file 
-			 * 
-			 * */
+			printf("Couldn't make client fifo\n");
+			return NO_MEMORY;
 		 }
 	}
 		

@@ -25,6 +25,7 @@ int checkout(char* dest, int client_id)
 	
 	if ((f = fopen(dest, "r")) != NULL) {
 		client_send("The directory already exists", client_id); 
+		client_send(END_OF_TRANSMISSION, client_id);
 		return 0;
 	}
     
@@ -149,7 +150,7 @@ int delete(char* dest, char* file, int client_id) {
 	} else {
 		client_send("File not found", client_id);
 		client_send(END_OF_TRANSMISSION, client_id);
-		return -1;
+		return NON_EXISTING_FILE;
 	}
 		
 	client_send(END_OF_TRANSMISSION, client_id);
