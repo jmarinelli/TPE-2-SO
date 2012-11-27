@@ -48,7 +48,7 @@ int main(int argc, int ** argv) {
 		client_header.parameter_size2 = 0;
 		parameter2 = "";
 	} else {
-		parameter = (string)argv[3];
+		parameter2 = (string)argv[3];
 		client_header.parameter_size2 = strlen(parameter2);
 	}
 	

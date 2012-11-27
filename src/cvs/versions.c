@@ -23,9 +23,11 @@ int get_max_version(string filename, string path) {
 		if ( strncmp(entry.d_name, ".", 1) && strncmp(entry.d_name, "..", 2)){
 			if(!strncmp(entry.d_name, filename, filename_size)) {
 				position = (char *)((entry.d_name + filename_size)+1);
-				sscanf(position, "%d", &current_version);
-				if (current_version > max_version)
-					max_version = current_version;
+				if (*position == '-') {
+					sscanf(position, "%d", &current_version);
+					if (current_version > max_version)
+						max_version = current_version;
+				}
 			}
 		}
 	} while ( result != NULL );

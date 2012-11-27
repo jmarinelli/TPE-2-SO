@@ -68,12 +68,26 @@ fstree_node_t find_child_by_path(fstree_node_t node, string path) {
 	return NULL;
 }
 
+fstree_node_t get_node_from_path(fstree_t tree, string path) {
+	fstree_node_t aux_tree_node = tree->root;
+	string position;
+	char * aux_path = calloc(1, MAX_PATH_LENGTH);
+	strcpy(aux_path, path);
+	while (position = strchr(aux_path, '/')){
+		*position = 0;
+		if (!(aux_tree_node = find_child_by_path(aux_tree_node, aux_path)))
+			return NULL;
+		aux_path = (char *)position+1;
+	}
+	return find_child_by_path(aux_tree_node, aux_path);
+}
+
 fstree_node_t add_node_if_not_existing(fstree_node_t node, string path, bool is_dir, int status){
 	fstree_node_t aux_node = find_child_by_path(node, path);
 	if (!aux_node) {
 		aux_node = new_fstree_node(is_dir, path, 0); /* Despues vemos el inodo */
 		add_child(node, aux_node); 
-		aux_node->status = status;
+		aux_node->status = ADDED;
 	} else {
 		if (status == ADDED) 
 			aux_node->status = UPDATED;

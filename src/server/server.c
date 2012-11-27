@@ -53,7 +53,7 @@ int main() {
 			instruction_string = calloc(1, client_header->instruction_size + client_header->parameter_size + client_header->parameter_size2 + 4);
 			client_working_dir = calloc(1, client_header->current_path_size + 1);
 			parameter = calloc(1, client_header->parameter_size);
-			parameter = calloc(1, client_header->parameter_size2);
+			parameter2 = calloc(1, client_header->parameter_size2);
 			
 			while(read(comChannel, instruction_string, client_header->instruction_size) == 0)
 				sleep(1);

@@ -102,6 +102,13 @@ string build_command(string command, string origin, string dest) {
 	return com;
 }
 
+void run_command(string command, string origin, string dest) {
+	string com;
+	com = build_command(command, origin, dest);
+	system(com);
+	free(com);
+}
+
 string remove_last_appended(string path) {
 	string new_path = (string)calloc(1, strlen(path) + 1);
 	string position = new_path;

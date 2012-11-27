@@ -20,6 +20,7 @@ int checkout(char* dest, int client_id)
 	FILE * f;
 	string command;
 	string new_dest;
+	string old_dest;
 	strcat(dest,"/cvs");
 	
 	if ((f = fopen(dest, "r")) != NULL) {
@@ -38,9 +39,15 @@ int checkout(char* dest, int client_id)
 		fprintf(f, "%d\n", client_id);
 		fclose(f);
 	}
+	
+	free(command);
+	
+	old_dest = append_to_path(dest, "old");
+
+	run_command(COMMAND_RM, old_dest, NULL);
+		
 	client_send("Checked out", client_id);
 	client_send(END_OF_TRANSMISSION, client_id);
-	free(command);
 	
     return 0;
 }
@@ -156,10 +163,10 @@ int add(char* dest, char* file, int client_id) {
 	fstree_node_t new_node;
 	char * parent_dest, * child_file, * position; 
 	char abs_path[MAX_PATH_LENGTH];
+	int base_client_id, file_type;
 	strcpy(abs_path, dest);
 	strcat(abs_path, "/");
 	strcat(abs_path, file);
-	int base_client_id, file_type;
 	child_file = (char *)calloc(1, MAX_PATH_LENGTH);
 	parent_dest = (char *)calloc(1, MAX_PATH_LENGTH);
 	strcpy(parent_dest, dest);
@@ -188,7 +195,7 @@ int add(char* dest, char* file, int client_id) {
 		client_tree = get_client_tree(base_client_id);
 		if (file_type == IS_DIRECTORY) {
 			update_child_from_path(client_tree, file, TRUE);
-			new_node = find_child_by_path(client_tree->root, child_file);
+			new_node = (fstree_node_t)get_node_from_path(client_tree, file);
 			retrieve_tree(abs_path, new_node);
 		} else {
 			update_child_from_path(client_tree, file, FALSE);
@@ -230,26 +237,19 @@ int commit_recursive(fstree_node_t node, string path, string server_path, string
 			break;
 		case ADDED:
 			new_server_path = remove_last_appended(server_path);
-			command = build_command(COMMAND_CP, path, new_server_path);
-			system(command);
+			run_command(COMMAND_CP, path, new_server_path);
 			free(new_server_path);
 			break;
 		case UPDATED:
 			almacenarVersionesViejasEnLaCarpetaOldParaDespuesLeerlasYMostrarselasAlUsuarioParaQueLasUse(server_path, remove_last_appended(old_path), node->filename);
-			command = build_command(COMMAND_RM, server_path, NULL);
-			system(command);
-			free(command);
+			run_command(COMMAND_RM, server_path, NULL);
 			new_server_path = remove_last_appended(server_path);
-			command = build_command(COMMAND_CP, path, new_server_path);
-			system(command);
-			free(command);
+			run_command(COMMAND_CP, path, new_server_path);
 			free(new_server_path);
 			break;
 		case DELETED:
 			almacenarVersionesViejasEnLaCarpetaOldParaDespuesLeerlasYMostrarselasAlUsuarioParaQueLasUse(server_path, remove_last_appended(old_path), node->filename);
-			command = build_command(COMMAND_RM, server_path, NULL);
-			system(command);
-			free(command);
+			run_command(COMMAND_RM, server_path, NULL);
 			break;
 		default:
 			return;
@@ -309,7 +309,7 @@ int diff_f(char * local, char * parent_path, char * filename, int client_id) {
 				client_send(response, client_id);
 			}
 		} else if (!server_line) {
-			if (!looping_extra) {
+			if (!looping_extra && client_line) {
 				sprintf(response, "Extra lines in client file:"); 
 				client_send(response, client_id);
 				looping_extra = TRUE;
@@ -319,7 +319,7 @@ int diff_f(char * local, char * parent_path, char * filename, int client_id) {
 				client_send(response, client_id);
 			}
 		} else if (!client_line) {
-			if (!looping_extra) {
+			if (!looping_extra && server_line) {
 				sprintf(response, "Extra lines in server file:"); 
 				client_send(response, client_id);
 				looping_extra = TRUE;
@@ -426,4 +426,26 @@ int versions(char* dest, char* file, int client_id) {
 			child_file, 1, version);
 	client_send(response, client_id);
 	client_send(END_OF_TRANSMISSION, client_id);
+}
+
+
+int backup(char * dest, char * file, int client_id, int version) {
+	char backup_file[MAX_PATH_LENGTH], repo_file[MAX_PATH_LENGTH], client_file[MAX_PATH_LENGTH];
+	string command;
+	FILE * f;
+	sprintf(backup_file, "%s/%s-%d", OLD_REPO_PATH, file, version);
+	sprintf(repo_file, "%s/%s", REPOSITORY_PATH, file);
+	sprintf(client_file, "%s/%s", dest, file);
+	if (!(f = fopen(backup_file, "r"))) {
+		client_send("Version not found", client_id);
+		client_send(END_OF_TRANSMISSION, client_id);
+		return NON_EXISTING_FILE;
+	}
+	run_command(COMMAND_RM, repo_file, NULL);
+	run_command(COMMAND_CP, backup_file, repo_file);
+	run_command(COMMAND_RM, client_file, NULL);
+	run_command(COMMAND_CP, backup_file, client_file);
+	client_send("File backed up", client_id);
+	client_send(END_OF_TRANSMISSION, client_id);
+	return SUCCESS;
 }
