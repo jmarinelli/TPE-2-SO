@@ -216,7 +216,6 @@ int commit_recursive(fstree_node_t node, string path, string server_path, string
 	string new_path;
 	string new_server_path;
 	string new_old_path;
-	string command;
 	switch(node->status) {
 		case INSIDE_CHANGED:
 			aux_node = node->children->first;
@@ -263,26 +262,11 @@ int commit(char * path, int client_id) {
 	fstree_t client_tree = get_client_tree(base_client_id);
 	fstree_node_t current_node = client_tree->root;
 	commit_recursive(current_node, path, REPOSITORY_PATH, OLD_REPO_PATH);
-	/* Faltaria liberar todo el arbol anterior */
 	repository_tree = (fstree_t)new_fstree();
 	retrieve_tree(REPOSITORY_PATH, repository_tree->root);
 	remove_client_tree(base_client_id);
 	client_send("Changes commited", client_id);
 	client_send(END_OF_TRANSMISSION, client_id);
-}
-
-string read_line(FILE * f) {
-	string ans = calloc(1, MAX_PATH_LENGTH);;
-	int i = 0;
-	char c;
-	do {
-		c = fgetc(f);
-		ans[i++] = c;
-	} while(c != '\n' && c != EOF);
-	if (i == 1 && c == EOF)
-		return NULL;
-	ans[i-1] = 0;
-	return ans;
 }
 
 int diff_f(char * local, char * parent_path, char * filename, int client_id) {

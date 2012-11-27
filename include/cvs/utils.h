@@ -6,3 +6,4 @@ string build_command(string,string,string);
 string remove_last_appended(string);
 void remove_client_tree(int);
 void run_command(string,string,string);
+string read_line(FILE *);

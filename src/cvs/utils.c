@@ -119,3 +119,17 @@ string remove_last_appended(string path) {
 	*last_position = 0;
 	return new_path;
 }
+
+string read_line(FILE * f) {
+	string ans = calloc(1, MAX_PATH_LENGTH);;
+	int i = 0;
+	char c;
+	do {
+		c = fgetc(f);
+		ans[i++] = c;
+	} while(c != '\n' && c != EOF);
+	if (i == 1 && c == EOF)
+		return NULL;
+	ans[i-1] = 0;
+	return ans;
+}
