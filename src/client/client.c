@@ -97,50 +97,10 @@ int main(int argc, int ** argv) {
 	return 0;
 }
 
-/* string pid_to_string (int pid) {
-	
-	string ans;
-	int aux = pid, cont = 0, i = 0;
-	
-	while(aux > 0) {
-		aux /= 10;
-		cont++;
-	}
-	
-	ans = calloc(1, cont + 1);
-	aux = pid;
-	
-	while (aux > 0) {
-		ans[cont-(i++)-1] = (aux%10) + '0';
-		aux /= 10;
-	}
-	
-	return ans;
-	
-}*/
 
 string get_string_from_pid (int pid)
 {
-	int aux = pid, cont = 0;
-	string file;
-
-	while(aux > 0)
-	{
-		aux /= 10;
-		cont++;
-	}
-	
-	cont += (TEMP_LENGTH);
-
-	file = calloc(cont + TEMP_LENGTH + 2, sizeof(char));
-	strcpy(file, TEMP_PATH);
-	strcat(file, "/");
-
-	while(pid > 0)
-	{
-		file[cont--] = pid % 10 + '0';
-		pid /= 10;
-	}
-
+	string file = calloc(1, MAX_PATH_LENGTH);
+	sprintf(file, "/tmp/%d", pid);
 	return file;
 }

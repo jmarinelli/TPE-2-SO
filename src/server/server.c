@@ -106,27 +106,8 @@ void server_close(){
 
 string get_string_from_pid (int pid)
 {
-	int aux = pid, cont = 0;
-	string file;
-
-	while(aux > 0)
-	{
-		aux /= 10;
-		cont++;
-	}
-	
-	cont += (TEMP_LENGTH);
-
-	file = calloc(cont + TEMP_LENGTH + 2, sizeof(char));
-	strcpy(file, TEMP_PATH);
-	strcat(file, "/");
-
-	while(pid > 0)
-	{
-		file[cont--] = pid % 10 + '0';
-		pid /= 10;
-	}
-
+	string file = calloc(1, MAX_PATH_LENGTH);
+	sprintf(file, "/tmp/%d", pid);
 	return file;
 }
 
