@@ -89,10 +89,12 @@ fstree_node_t add_node_if_not_existing(fstree_node_t node, string path, bool is_
 		add_child(node, aux_node); 
 		aux_node->status = ADDED;
 	} else {
-		if (status == ADDED) 
-			aux_node->status = UPDATED;
-		else
-			aux_node->status = status;
+		if (aux_node->status != ADDED) {
+			if (status == ADDED) 
+				aux_node->status = UPDATED;
+			else
+				aux_node->status = status;
+		}
 	}
 	return aux_node;
 }
