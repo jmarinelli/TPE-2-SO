@@ -32,7 +32,7 @@ int checkout(char* dest, int client_id)
     new_dest = remove_last_appended(dest);
     run_command(COMMAND_CP_2, REPOSITORY_PATH, new_dest);
     
-    command = append_to_path(dest, "./cvs");
+    command = append_to_path(dest, "/.cvs");
         
     if ((f = fopen(command, "w")) != NULL) {
 		fprintf(f, "%d\n", client_id);
@@ -52,10 +52,17 @@ int checkout(char* dest, int client_id)
 }
 
 int update(char* dest, char* file, int client_id){
+	string container;
 	fstree_t client_tree;
 	client_tree = repository_tree; 
 	fstree_node_t current = client_tree->root;
 	char * child_file, * position, *command, *server_folder, *client_folder;
+	
+	if (!strcmp(file,".")){
+		container = remove_last_appended(dest);
+		run_command(COMMAND_RM, dest, NULL);
+		return checkout(container, client_id);
+	}
 	
 	child_file = (char *)calloc(MAX_PATH_LENGTH, sizeof(char));
 	server_folder = (char *)calloc(MAX_PATH_LENGTH, sizeof(char));
@@ -64,8 +71,6 @@ int update(char* dest, char* file, int client_id){
 	strcpy(child_file, file);
 	strcpy(server_folder, REPOSITORY_PATH);
 	strcpy(client_folder, dest);
-	
-
 	
 	while (position = strchr(child_file, '/')) {
 		*position = 0;
