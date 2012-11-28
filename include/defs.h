@@ -71,6 +71,7 @@ typedef instruction_header * instruction_header_t;
 #define COMMAND_CP_2	"cp -r"
 #define COMMAND_RM		"sudo rm -r"
 #define COMMAND_MKDIR	"sudo mkdir"
+#define COMMAND_MV 		"sudo mv"
 
 /* Server-Client Protocol */
 

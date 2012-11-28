@@ -7,3 +7,4 @@ string remove_last_appended(string);
 void remove_client_tree(int);
 void run_command(string,string,string);
 string read_line(FILE *);
+string get_last_path (string);

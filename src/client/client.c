@@ -52,9 +52,6 @@ int main(int argc, int ** argv) {
 		parameter2 = (string)argv[3];
 		client_header.parameter_size2 = strlen(parameter2);
 	}
-	
-	
-	printf("Sending instruction size %d, from client %d\n", client_header.instruction_size, client_header.client_id);
 			
 	write(comChannel, &client_header, sizeof(struct instruction_header));
 	write(comChannel, instruction, client_header.instruction_size);

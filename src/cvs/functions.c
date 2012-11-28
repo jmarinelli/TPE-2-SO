@@ -107,14 +107,74 @@ int update(char* dest, char* file, int client_id){
 	return SUCCESS; 
 }
 
+
+
+
+
+
 int rename_file(char* dest, char* file, char * new_name, int client_id){
-	char * local_old_path, * server_old_path, * local_new_path, * server_new_path;
+	string local_old_path, server_old_path, local_new_path, server_new_path;
+	string position, file_folder;
+	string old_repo_path = calloc(1, MAX_PATH_LENGTH);
+	string filename, newname, file_path, new_path;
+	char old_file[MAX_PATH_LENGTH];
+	char old_new_name[MAX_PATH_LENGTH];
+	int version;
+	struct dirent entry;
+	struct dirent * result;
+	DIR * old;
 	local_old_path = append_to_path(dest, file);
 	local_new_path = append_to_path(dest, new_name);
 	server_old_path = append_to_path(REPOSITORY_PATH, file);
 	server_new_path = append_to_path(REPOSITORY_PATH, new_name);
-	rename(local_old_path, local_new_path);
+	if (!get_node_from_path(repository_tree, file)) {
+		client_send("File not found in server", client_id);
+		client_send(END_OF_TRANSMISSION, client_id);
+		return NON_EXISTING_FILE;
+	} 
+	
+	run_command(COMMAND_MV, local_old_path, local_new_path);
+	run_command(COMMAND_MV, server_old_path, server_new_path);
+	
+	file_folder = remove_last_appended(file);
+	old_repo_path = append_to_path(OLD_REPO_PATH, file_folder);
+	
+	if (!(old = opendir(old_repo_path))) {
+		client_send("File renamed", client_id);
+		client_send(END_OF_TRANSMISSION, client_id);
+		return SUCCESS;
+	}
+	
+	filename = get_last_path(file);
+	newname = get_last_path(new_name);
+	
+	do {
+		readdir_r(old, &entry, &result);
+		if ( strncmp(entry.d_name, ".", 1) && strncmp(entry.d_name, "..", 2)){
+			if (!strncmp(filename, entry.d_name, strlen(filename))) {
+				position = strchr(entry.d_name, '-');
+				if (position) {
+					sscanf(position+1, "%d", &version);
+					sprintf(old_new_name, "%s-%d", newname, version); 
+					file_path = append_to_path(old_repo_path, entry.d_name);
+					new_path = append_to_path(old_repo_path, old_new_name);
+					run_command(COMMAND_MV, file_path, new_path);
+				}
+			}
+		}
+	} while ( result != NULL );
+
+	repository_tree = (fstree_t)new_fstree();
+	retrieve_tree(REPOSITORY_PATH, repository_tree->root);
+	
+	client_send("File renamed.", client_id);
+	client_send(END_OF_TRANSMISSION, client_id);
 }
+
+
+
+
+
 
 int delete(char* dest, char* file, int client_id) {
 	
